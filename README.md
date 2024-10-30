@@ -1,2 +1,4 @@
-# olodoc
-Php markdown documentation generator
+
+# Olodoc
+
+Php Markdown (.md) Documentation Generator
