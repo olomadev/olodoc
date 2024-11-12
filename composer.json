@@ -1,5 +1,5 @@
 {
-    "name": "olodoc",
+    "name": "olomadev/olodoc",
     "type": "library",
     "description": "Php Markdown (.md) Documentation Generator by Oloma Software",
     "license": "MIT",
