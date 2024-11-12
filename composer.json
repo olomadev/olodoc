@@ -1,0 +1,34 @@
+{
+    "name": "olodoc",
+    "type": "library",
+    "description": "Php Markdown (.md) Documentation Generator by Oloma Software",
+    "license": "MIT",
+    "keywords": [
+        "olodoc",
+        "php",
+        "mezzio",
+        "laminas"
+        "documentation",
+        "doc",
+        "generator",
+        "markdown",
+        "md"
+    ],
+    "homepage": "https://olodoc.dev",
+    "autoload": {
+        "psr-4": {
+            "Olodoc\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": { 
+            "": ""
+        }
+    },
+    "bin": [
+        "bin/olodoc"
+    ],
+    "require": {
+        "php": ">=7.0.0"
+    }
+}
