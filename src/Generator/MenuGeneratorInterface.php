@@ -17,20 +17,6 @@ interface MenuGeneratorInterface
     public function generate() : array;
 
     /**
-     * Returns to translated page title
-     *
-     * @return string
-     */
-    public function getTitle();
-
-    /**
-     * Returns to translated sub page title
-     *
-     * @return string
-     */
-    public function getSubTitle();
-
-    /**
      * Returns to menu array
      * 
      * @return array

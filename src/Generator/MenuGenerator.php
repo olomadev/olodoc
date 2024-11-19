@@ -19,41 +19,6 @@ use Olodoc\Exception\ConfigurationErrorException;
 class MenuGenerator implements MenuGeneratorInterface
 {
     /**
-     * All links on the menu
-     * 
-     * @var string
-     */
-    protected $sideNavbarLinks;
-
-    /**
-     * Document manager
-     * 
-     * @var object
-     */
-    protected $documentManager;
-
-    /**
-     * Anchor Generator
-     * 
-     * @var object
-     */
-    protected $anchorGenerator;
-
-    /**
-     * Page title
-     * 
-     * @var string
-     */
-    protected $title;
-
-    /**
-     * Page sub title
-     * 
-     * @var string
-     */
-    protected $subTitle;
-
-    /**
      * Menu data
      * 
      * @var array
@@ -96,13 +61,6 @@ class MenuGenerator implements MenuGeneratorInterface
     protected $segments = array();
 
     /**
-     * Directory label
-     * 
-     * @var string
-     */
-    protected $directoryLabel = "";
-
-    /**
      * Base url
      * 
      * @var string
@@ -115,6 +73,34 @@ class MenuGenerator implements MenuGeneratorInterface
      * @var string
      */
     protected $version;
+
+    /**
+     * All links on the menu
+     * 
+     * @var string
+     */
+    protected $sideNavbarLinks;
+
+    /**
+     * Document manager
+     * 
+     * @var object
+     */
+    protected $documentManager;
+
+    /**
+     * Anchor Generator
+     * 
+     * @var object
+     */
+    protected $anchorGenerator;
+
+    /**
+     * Directory label
+     * 
+     * @var string
+     */
+    protected $directoryLabel = "";
 
     /**
      * Constructor
@@ -154,36 +140,35 @@ class MenuGenerator implements MenuGeneratorInterface
         $page = $this->documentManager->getPage();
         $directory = $this->documentManager->getDirectory();
         $pageRoute = $this->documentManager::PAGE_ROUTE;
+        $indexPage = $this->documentManager::INDEX_PAGE;
+        $icon = $this->documentManager::FOLDER_ICON;
 
         $this->buildSegments($directory);
         $this->buildDirectoryLabel();
-        $this->title = count($this->segments) > 1 ? $this->directoryLabel : mb_ucfirst($directory);
         $routeName = $this->documentManager->getRouteName();
         $pages = [
             '/'.$directory.'/'.$page,
             '/'.$page
         ];
+        $i = 0;
         $isIndexRoute = in_array($routeName, $this->indexRoutes);
         foreach ($this->menu as $val) {
-            $active = '';  
+            $active = ($isIndexRoute && $i == 0) ? 'active' : ''; // active first menu if page == index
             if (in_array($val['url'], $pages)) {
-                $this->subTitle = $val['label'];
-                $active = 'active';
-            }
-            if (empty($active) && $isIndexRoute) {
                 $active = 'active';
             }
             if (! empty($val['children'])) {
                 $this->validateParentFolder($val);
-                $navFolderClass = ($routeName == $pageRoute && $page == $this->documentManager::INDEX_PAGE) ? 'nav-folder-index' : 'nav-folder';
+                $navFolderClass = ($routeName == $pageRoute && $page == $indexPage) ? 'nav-folder-index' : 'nav-folder';
                 $this->sideNavbarLinks.= "<li class=\"$navFolderClass nav-item\">"; 
-                $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$this->documentManager::FOLDER_ICON.'&nbsp;&nbsp;'.$val['label'].'</a>';
+                $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$icon.'&nbsp;&nbsp;'.$val['label'].'</a>';
             } else {
                 $this->sideNavbarLinks.= '<li class="nav-item">'; 
                 $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$val['label'].'</a>';
             }
             $this->generateSubItems($val['url'], $pages, $page);
             $this->sideNavbarLinks.= '</li>';  // end nav items
+            ++$i;
         }
         return $this->data;
     }
@@ -202,13 +187,11 @@ class MenuGenerator implements MenuGeneratorInterface
         $disableAnchorGenerations = $this->documentManager->getAnchorGenerations();
         $disableAnchorsForIndexPages = $this->documentManager->getAnchorsForIndexPages();
         
-        if (count($this->data['subItems']) > 0 
-            && in_array($pageUrl, $pages)
-            && ! in_array($currentRouteName, $this->indexRoutes) // don't generate anchor items for index routes
-        ) {
+        if (count($this->data['subItems']) > 0 && in_array($pageUrl, $pages)) {
             if (false == $disableAnchorGenerations) {
                 if (false == $disableAnchorsForIndexPages 
-                    && $page != $this->documentManager::INDEX_PAGE) {  // do not generate anchors for introduction pages ...
+                    && $page != $this->documentManager::INDEX_PAGE // do not generate anchors for introduction pages ...
+                    && ! in_array($currentRouteName, $this->indexRoutes)) {
                     $this->anchorGenerator->generate();    
                 }
             }
@@ -224,26 +207,6 @@ class MenuGenerator implements MenuGeneratorInterface
             }
         }
     }
-
-    /**
-     * Returns to translated page title
-     *
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    /**
-     * Returns to translated sub page title
-     *
-     * @return string
-     */
-    public function getSubTitle()
-    {
-        return $this->subTitle;
-    }    
 
     /**
      * Returns to menu array

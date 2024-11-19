@@ -34,6 +34,13 @@ class PageGenerator implements PageGeneratorInterface
     protected $menu = array();
 
     /**
+     * Current page meta data
+     * 
+     * @var string
+     */
+    protected $meta = array();
+
+    /**
      * Current html data
      * 
      * @var array
@@ -88,6 +95,16 @@ class PageGenerator implements PageGeneratorInterface
         $this->jsGenerator = new JsGenerator($documentManager);
         $this->paginationGenerator = new PaginationGenerator($documentManager, $this->menuGenerator);
         $this->breadCrumbGenerator = new BreadCrumbGenerator($documentManager, $this->menuGenerator);
+    }
+
+    /**
+     * Returns to current page meta data
+     * 
+     * @return object
+     */
+    public function getMeta() : array
+    {
+        return $this->meta;
     }
 
     /**
@@ -148,7 +165,75 @@ class PageGenerator implements PageGeneratorInterface
     public function generate()
     {  
         $this->menu = $this->menuGenerator->getMenu();
+        $this->setMeta();
         return $this->data;
+    }
+
+    /**
+     * Sets page meta data
+     *
+     * @return void
+     */
+    protected function setMeta()
+    {
+        $path = $this->documentManager->getRequest()->getUri()->getPath();
+        $defaultMeta = array(
+            'title' => null,
+            'keywords' => null,
+            'description' => null,
+        );
+        $currentPath = str_replace(
+            "/".$this->documentManager->getVersion(),  // remove version number
+            "",
+            $path
+        );
+        $item = array_filter(
+            $this->menu, 
+            function ($v) {
+                return strpos("/".ltrim($v['url'], "/"), $currentPath) !== false;
+            }
+        );
+        $this->meta = empty($item['meta']) ? $defaultMeta : $item['meta'];
+
+        // $routeName = $this->documentManager->getRouteName();
+        // switch ($routeName) {
+        //   case $documentManager::INDEX_DEFAULT:
+        //   case $documentManager::INDEX_DEFAULT_INDEX:
+        //   case $documentManager::INDEX_DEFAULT_SLASH:
+        //   case $documentManager::INDEX_DEFAULT_LATEST:
+        //         $item = array_filter(
+        //             $this->menu, 
+        //             function ($v) { 
+        //                 if (! empty($v['url']) 
+        //                     && strpos($v['url'], 'index.html') !== false) {
+        //                     return true;
+        //                 }
+        //             }
+        //         );
+        //       break;
+        //   case $documentManager:PAGE_ROUTE;
+        //         $item = array_filter(
+        //             $this->menu, 
+        //             function ($v) { 
+        //                 if (! empty($v['url']) 
+        //                     && strpos($v['url'], 'index.html') !== false) {
+        //                     return true;
+        //                 }
+        //             }
+        //         );
+        //       break;
+        //   case $documentManager::DIRECTORY_ROUTE:
+        //         $item = array_filter(
+        //             $this->menu, 
+        //             function ($v) { 
+        //                 if (! empty($v['url']) 
+        //                     && strpos($v['url'], 'index.html') !== false) {
+        //                     return true;
+        //                 }
+        //             }
+        //         );
+        //       break;
+        // }
     }
 
     /**

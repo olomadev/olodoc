@@ -18,7 +18,14 @@ interface PageGeneratorInterface
      * @return object
      */
     public function getMenu() : MenuGeneratorInterface;
-        
+       
+    /**
+     * Returns to current page meta data
+     * 
+     * @return array
+     */
+    public function getMeta() : array;
+
     /**
      * Returns to breadcrumb generator class
      * 
