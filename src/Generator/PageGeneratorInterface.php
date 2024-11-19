@@ -8,10 +8,31 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * @author Oloma <support@oloma.dev>
  *
- * Html Generator Interface
+ * Html Page Generator Interface
  */
 interface PageGeneratorInterface
 {    
+    /**
+     * Returns to Menu Generator class
+     * 
+     * @return object
+     */
+    public function getMenu() : MenuGeneratorInterface;
+        
+    /**
+     * Returns to breadcrumb generator class
+     * 
+     * @return object
+     */
+    public function getBreadCrumb() : BreadCrumbGeneratorInterface;
+
+    /**
+     * Returns to js generator class
+     * 
+     * @return object
+     */
+    public function getJs() : JsGeneratorInterface;
+
     /**
      * Returns to document manager class
      * 
@@ -27,54 +48,11 @@ interface PageGeneratorInterface
     public function generate();
 
     /**
-     * Returns to translated sub menu title
-     *
-     * @return string
-     */
-    public function getTitle();
-
-    /**
-     * Returns to translated child menu title
-     *
-     * @return string
-     */
-    public function getSubTitle();
-
-    /**
-     * Returns to menu text
-     * 
-     * @param  string $backToMenuText text
-     * @return string
-     */
-    public function getBackToMenuLink($backToMenuText = 'Back to Menu') : string;
-
-    /**
      * Returns to navigation bar html
      * 
      * @return string
      */
-    public function getPageFooter() : string;
-
-    /**
-     * Returns to javascript codes
-     * 
-     * @return string
-     */
-    public function getJavascript() : string;
-
-    /**
-     * Returns to current page links
-     *
-     * @return string
-     */
-    public function getCurrentPageLinks();
-
-    /**
-     * Returns to child page links
-     *
-     * @return string
-     */
-    public function getChildPageLinks();
+    public function getFooter() : string;
 
     /**
      * Returns to html version combobox
@@ -89,13 +67,5 @@ interface PageGeneratorInterface
      * 
      * @return string
      */
-    public function getSearchBoxInput() : string;
-
-    /**
-     * Returns to bread crumbs
-     * 
-     * @return string
-     */
-    public function getBreadCrumbs(string $indexName = "Index") : string;
-    
+    public function getSearchBoxInput() : string;    
 }

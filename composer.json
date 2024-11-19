@@ -1,18 +1,19 @@
 {
     "name": "olomadev/olodoc",
     "type": "library",
-    "description": "Php Markdown (.md) Documentation Generator by Oloma Software",
+    "description": "Php html documentation builder for markdown (.md) files.",
     "license": "MIT",
     "keywords": [
         "olodoc",
         "php",
-        "mezzio",
-        "laminas",
         "documentation",
         "doc",
         "generator",
         "markdown",
-        "md"
+        "builder",
+        "md",
+        "mezzio",
+        "laminas"
     ],
     "homepage": "https://olodoc.dev",
     "autoload": {

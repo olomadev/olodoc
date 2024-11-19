@@ -85,28 +85,29 @@ class AnchorGenerator implements AnchorGeneratorInterface
         if (count($this->data['subItems']) == 0) {
             return;
         }
+        $class = "";
         foreach ($this->data['subItems'] as $k => $v) {
             switch ($this->data['subHeaders'][$k]) {
                 case '2':
-                    $style = 'padding-left:0px;font-weight:bold;';
+                    $class = 'nav-sub-item-h2';
                     break;
                 case '3':
-                    $style = 'padding-left:0px;';
+                    $class = 'nav-sub-item-h3';
                     break;
                 case '4':
-                    $style = 'padding-left:3px;';
+                    $class = 'nav-sub-item-h4';
                     break;
                 case '5':
-                    $style = 'padding-left:5px;';
+                    $class = 'nav-sub-item-h5';
                     break;
                 case '6':
-                    $style = 'padding-left:7px;';
+                    $class = 'nav-sub-item-h6';
                     break;
                 default:
-                    $style = 'padding-left:0px;';
+                    $class = 'nav-sub-item-h0';
                     break;
             }
-            $this->anchors.= '<li class="nav-sub-item" style="'.$style.'"><a href="#'.Self::formatName($v).'" class="nav-sub-link">'.$v.'</a></li>';
+            $this->anchors.= '<li class="nav-sub-item '.$class.'"><a href="#'.Self::formatName($v).'" class="nav-sub-link">'.$v.'</a></li>';
         }
     }
 

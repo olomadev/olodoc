@@ -16,10 +16,12 @@ class LaminasDocumentManagerFactory
         $documentManager->setAvailableVersions($config['available_versions']);
         $documentManager->setDefaultVersion($config['default_version']);
         $documentManager->setRootPath($config['root_path']);  // /var/www/olodoc-site
-        $documentManager->setDocumentFolder($config['document_folder']); // docs
+        $documentManager->setRouteFolder($config['route_folder']); // docs
         $documentManager->setHtmlPath($config['html_path']); // /data/docs/
         $documentManager->setXmlMapPath($config['xml_path']); // /public/sitemap.xml
         $documentManager->setBase64Convert($config['base64_convert']); // true
+        $documentManager->disableAnchorGenerations($config['disable_anchor_generations']); // false
+        $documentManager->disableAnchorsForIndexPages($config['disable_anchors_for_index_pages']); // false
 
         return $documentManager;
     }

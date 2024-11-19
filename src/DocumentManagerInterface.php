@@ -56,6 +56,21 @@ interface DocumentManagerInterface
     public function getConfigPath() : string;
 
     /**
+     * Disable anchor generations
+     * 
+     * @param  Bool   $bool boolean value
+     * @return void
+     */
+    public function disableAnchorGenerations();
+
+    /**
+     * Returns to anchor generations boolean
+     *
+     * @return boolean
+     */
+    public function getAnchorGenerations() : Bool;
+
+    /**
      * Set document root path
      *
      * @return void
@@ -70,18 +85,18 @@ interface DocumentManagerInterface
     public function getRootPath() : string;
 
     /**
-     * Set document folder
+     * Set route folder
      * 
      * @param string $route path
      */
-    public function setDocumentFolder(string $folder = 'docs');
+    public function setRouteFolder(string $folder = 'docs');
 
     /**
-     * Returns to document folder name
+     * Returns to route folder name
      *
      * @return string folder name
      */
-    public function getDocumentFolder() : string;
+    public function getRouteFolder() : string;
 
     /**
      * Set site map xml root path
@@ -235,20 +250,6 @@ interface DocumentManagerInterface
      * @return string|null
      */
     public function getDirectory();
-
-    /**
-     * Returns to sub directory name
-     * 
-     * @return string|null
-     */
-    public function getSubDirectory();
-
-    /**
-     * Returns to sub page name
-     * 
-     * @return string|null
-     */
-    public function getSubPage();
 
     /**
      * Returns to page name

@@ -43,14 +43,8 @@ class GenerateHtmlCommand extends Command
             return Command::FAILURE;
         }
         $this->config = $this->configArray['olodoc'];
-        $this->availableLanguages = $this->config['available_languages'];
-        $this->rootPath = '/'.ltrim(rtrim($this->config['root_path'], '/'), '/');
-        $this->httpPrefix = $this->config['http_prefix'];
-        $this->baseUrl = ltrim(rtrim($this->config['base_url'], '/'), '/');
-        $this->htmlPath = $this->rootPath.'/'.ltrim(rtrim($this->config['html_path'], '/'), '/').'/';
-        $this->imagesFolder = '/'.ltrim(rtrim($this->config['images_folder'], '/'), '/').'/';
-
         try {
+            $this->validateConfigurations();
             $this->removeHtmlFiles(); // remove all html files
             $this->generateHtmlFiles();
         } catch (Exception $e) {
@@ -66,6 +60,46 @@ class GenerateHtmlCommand extends Command
         // or return this to indicate incorrect command usage; e.g. invalid options
         // or missing arguments (it's equivalent to returning int(2))
         // return Command::INVALID
+    }
+
+    protected function validateConfigurations()
+    {
+        if (empty($this->config['available_languages'])) {
+            throw new Exception(
+                "The configuration key 'available_languages' cannot be empty in your 'olodoc' configuration."
+            );
+        }
+        $this->availableLanguages = $this->config['available_languages'];
+        if (empty($this->config['root_path'])) {
+            throw new Exception(
+                "The configuration key 'root_path' cannot be empty in your 'olodoc' configuration."
+            );
+        }
+        $this->rootPath = '/'.ltrim(rtrim($this->config['root_path'], '/'), '/');
+        if (empty($this->config['http_prefix'])) {
+            throw new Exception(
+                "The configuration key 'http_prefix' cannot be empty in your 'olodoc' configuration."
+            );
+        }
+        $this->httpPrefix = $this->config['http_prefix'];
+        if (empty($this->config['base_url'])) {
+            throw new Exception(
+                "The configuration key 'base_url' cannot be empty in your 'olodoc' configuration."
+            );
+        }
+        $this->baseUrl = ltrim(rtrim($this->config['base_url'], '/'), '/');
+        if (empty($this->config['html_path'])) {
+            throw new Exception(
+                "The configuration key 'html_path' cannot be empty in your 'olodoc' configuration."
+            );
+        }
+        $this->htmlPath = $this->rootPath.'/'.ltrim(rtrim($this->config['html_path'], '/'), '/').'/';
+        if (empty($this->config['images_folder'])) {
+            throw new Exception(
+                "The configuration key 'images_folder' cannot be empty in your 'olodoc' configuration."
+            );
+        }
+        $this->imagesFolder = '/'.ltrim(rtrim($this->config['images_folder'], '/'), '/').'/';
     }
 
     protected function removeHtmlFiles()
@@ -84,7 +118,7 @@ class GenerateHtmlCommand extends Command
 
     protected function generateHtmlFiles()
     {
-        if ($this->config['generate_sitemapxml']) {
+        if ($this->config['build_sitemapxml']) {
             $this->siteMapXml ='<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL;
             $this->siteMapXml.= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:me="http://www.google.com/schemas/sitemap-me/1.0">'.PHP_EOL;
         }
@@ -93,7 +127,7 @@ class GenerateHtmlCommand extends Command
         foreach (new RecursiveIteratorIterator($iterator) as $splFileInfo) {
 
             $file = $splFileInfo->getPathName();
-            preg_match("#/".preg_quote($this->config['document_folder'])."\/(.*?)/#", $file, $matches);
+            preg_match("#/".preg_quote($this->config['route_folder'])."\/(.*?)/#", $file, $matches);
             $version = empty($matches[1]) ? null : $matches[1];
             $parts = pathinfo($file);
             $extension = strtolower($parts['extension']);
@@ -111,8 +145,8 @@ class GenerateHtmlCommand extends Command
                 /**
                  * Generate site map xml
                  */
-                if ($this->config['generate_sitemapxml']) {
-                    $this->generateSiteMapXml($splFileInfo, $version);    
+                if ($this->config['build_sitemapxml']) {
+                    $this->buildSiteMapXml($splFileInfo, $version);    
                 }
                 /**
                  * Parse md content
@@ -139,7 +173,7 @@ class GenerateHtmlCommand extends Command
                 if ($this->config['base64_convert']) {
                     $html = preg_replace_callback(
                         '#(src="(.*?)")#', 
-                        array($this, "imgToBase64"),
+                        array($this, "renderImgToBase64"),
                         $html
                     );
                 }
@@ -148,13 +182,19 @@ class GenerateHtmlCommand extends Command
                 chmod($filePath, 0644);
             }
         }
-        if ($this->config['generate_sitemapxml']) {
+        if ($this->config['build_sitemapxml']) {
             $this->siteMapXml.= '</urlset>'.PHP_EOL;
             file_put_contents($this->rootPath.$this->config['xml_path'], $this->siteMapXml);    
         }
     }
 
-    protected function imgToBase64($matches)
+    /**
+     * Render images to base64 code
+     * 
+     * @param  array $matches matches
+     * @return string
+     */
+    protected function renderImgToBase64($matches)
     {
         if (! empty($matches[2])) {
             $imgPath = $this->rootPath.'/'.$this->imagesFolder.$matches[2];
@@ -180,6 +220,12 @@ class GenerateHtmlCommand extends Command
         return $matches[1];
     }
 
+    /**
+     * Render images
+     * 
+     * @param  string $html string
+     * @return string
+     */
     protected function renderImages($html)
     {
         return preg_replace(
@@ -189,6 +235,12 @@ class GenerateHtmlCommand extends Command
         );
     }
     
+    /**
+     * Replace markdown blockquote tag to boostrap alerts
+     * 
+     * @param  string $html html
+     * @return string
+     */
     protected function renderAlerts($html)
     {
         return preg_replace(
@@ -198,6 +250,13 @@ class GenerateHtmlCommand extends Command
         );
     }
 
+    /**
+     * Render boostrap tabs
+     * 
+     * @param  string $html      html
+     * @param  object $parsedown ParseDown class
+     * @return string
+     */
     protected function renderTabs($html, $parsedown)
     {
         preg_match_all("#<tab>(.*?)<\/tab>#si", $html, $matches);
@@ -237,14 +296,26 @@ class GenerateHtmlCommand extends Command
         return $html;
     }
 
-    protected function renderTabTitle($value)
+    /**
+     * Render tab title
+     * 
+     * @param  string $value content
+     * @return array
+     */
+    protected function renderTabTitle($value) : array
     {
         preg_match("#<title>(.*?)<\/title>#si", $value, $titles);
         $exp = explode("|", $titles[1]);
         return (array)$exp;
     }
 
-    protected function renderTabContent($value)
+    /**
+     * Render tab content
+     * 
+     * @param  string $value content
+     * @return array
+     */
+    protected function renderTabContent($value) : array
     {
         preg_match("#<content>(.*?)<\/content>#si", $value, $content);
         $exp = explode("<tcol>", $content[1]);
@@ -252,12 +323,12 @@ class GenerateHtmlCommand extends Command
     }
 
     /**
-     * Generate site map xml
+     * Build site map xml
      * 
      * @param  SplFileInfo $splFileInfo object
      * @return void
      */
-    protected function generateSiteMapXml($splFileInfo, string $version)
+    protected function buildSiteMapXml($splFileInfo, string $version)
     {
         $file = $splFileInfo->getPathName();
         $filename = pathinfo($splFileInfo->getFilename(), PATHINFO_FILENAME);
@@ -297,6 +368,4 @@ class GenerateHtmlCommand extends Command
             }
         }
     }
-
-
 }

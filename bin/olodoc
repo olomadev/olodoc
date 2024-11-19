@@ -13,16 +13,25 @@ if (file_exists($a = __DIR__ . '/../../../autoload.php')) {
     exit(1);
 }
 //
+// find root path of project
+// 
+$explode = explode("/", __DIR__);
+$rootPath = "/";
+foreach ($explode as $val) {
+    if ($val == "vendor") {
+        break;
+    }
+    if (! empty($val)) {
+        $rootPath.= $val."/";
+    }
+}
+//
 // mezzio - container.php
 // 
-if (file_exists($container = __DIR__ . '/../../../config/container.php')) {
-    require $container;
-} elseif (file_exists($container = __DIR__ . '/../config/container.php')) {
-    require $container;
-} elseif (file_exists($container = __DIR__ . '/../config/container.php')) {
-    require $container;
+if (file_exists($c = $rootPath . 'config/container.php')) {
+    $container = require $c;
 } else {
-    fwrite(STDERR, 'Cannot locate mezzio container; please run "composer install"' . PHP_EOL);
+    fwrite(STDERR, 'Cannot locate mezzio container."' . PHP_EOL);
     exit(1);
 }
 $config = $container->get('config');
@@ -35,5 +44,4 @@ $application = new Application();
 // register commands
 // 
 $application->add(new GenerateHtmlCommand($config));
-
 $application->run();

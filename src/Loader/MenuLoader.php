@@ -6,7 +6,19 @@ namespace Olodoc\Loader;
 
 use Olodoc\DocumentManagerInterface;
 use Olodoc\Exception\FileNotFoundException;
+use Olodoc\Exception\ConfigurationErrorException;
 
+/**
+ * Check is array is associative
+ */
+if (! function_exists('array_is_list')) {
+    function array_is_list(array $arr) {
+        if ($arr === []) {
+            return true;
+        }
+        return array_keys($arr) === range(0, count($arr) - 1);
+    }
+}
 /**
  * @author Oloma <support@oloma.dev>
  *
@@ -14,24 +26,38 @@ use Olodoc\Exception\FileNotFoundException;
  *
  * Responsible for loading menus
  */
-class MenuLoader
+class MenuLoader implements MenuLoaderInterface
 {
     /**
-     * Menu data
+     * Current direcytory path e.g. (ui, ui/layouts)
+     * 
+     * @var string
+     */
+    protected $directory;
+    
+    /**
+     * Current (dynamic) menu data
      * 
      * @var array
      */
     protected $menuArray = array();
 
     /**
-     * Folderable menu data
+     * Menu configuration array
      * 
      * @var array
      */
-    protected $folderMenuArray = array();
+    protected $menuConfig = array();
 
     /**
-     * Document manager
+     * Menus with directory names as keys
+     * 
+     * @var array
+     */
+    protected $folderableMenu = array();
+
+    /**
+     * Document manager class
      * 
      * @var object
      */
@@ -55,24 +81,35 @@ class MenuLoader
      */
     public function loadMenu(string $directory = "") : array
     {
-        //---------------------------------------------------------------------------
-        
+        $this->directory = $directory;
         $file = $this->documentManager->getMenuFile();
         if (! is_file($file)) {
-            throw new FileNotFoundException("Menu configuration file doest not exists in your config folder.");
+            throw new FileNotFoundException(
+                "Menu configuration file does't exists in your config folder."
+            );
         }
-        $this->menuArray = require $file;
-        $this->folderMenuArray = Self::findFolders($this->menuArray);
-        if (empty($this->folderMenuArray[$directory]['children'])) {
-            $menu = $this->menuArray;
-        } else {
-            $menu = $this->folderMenuArray[$directory]['children'];
+        $this->menuArray = $this->menuConfig = require $file;
+        if (! is_array($this->menuConfig)) {
+            throw new ConfigurationErrorException(
+                "Menu configuration items must be array."
+            );
         }
-        return $menu;
+        if (! array_is_list($this->menuConfig)) {
+            throw new ConfigurationErrorException(
+                "Menu configuration items must not be an associative array it must be simple array list."
+            );
+        }
+        $this->menuArray = $this->buildMenuAndFolders($this->menuArray);
+        if (! empty($directory) && 
+            ! empty($this->folderableMenu[$directory])) 
+        {
+            $this->menuArray = $this->folderableMenu[$directory];
+        }
+        return $this->menuArray;
     }
 
     /**
-     * Returns to menu array
+     * Current (dynamic) menu data
      * 
      * @return array
      */
@@ -82,30 +119,32 @@ class MenuLoader
     }
 
     /**
-     * Returns to folderable menu array
+     * Returns to menu conguration array
      * 
      * @return array
      */
-    public function getFolderableMenuArray() : array
+    public function getMenuConfig() : array
     {
-        return $this->folderMenuArray;
+        return $this->menuConfig;
     }
 
     /**
-     * Find folders
+     * Build recursive menu and folderable menu array
      * 
-     * @param  array  $menuArray menu array
+     * @param  array  $menu array
      * @return array
      */
-    protected static function findFolders(array $menuArray) : array
+    protected function buildMenuAndFolders(array $menu) : array
     {
-        $folderMenuArray = array();
-        foreach ($menuArray as $key => $val) {
-            if (! empty($val['folder'])) {
-                $folderMenuArray[$val['folder']] = $val;
+        foreach ($menu as $val) {
+            if (! empty($val['children'])) {
+                $folderKey = mb_strtolower($val['folder']);
+                $this->folderableMenu[$folderKey] = $val['children'];
+                $newMenuArray = $val['children'];
+                $this->buildMenuAndFolders($newMenuArray);
             }
         }
-        return $folderMenuArray;
+        return $menu;
     }
 
 }

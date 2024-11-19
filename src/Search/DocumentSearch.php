@@ -24,7 +24,7 @@ class DocumentSearch implements DocumentSearchInterface
     protected $rootPath;
     protected $htmlPath;
     protected $currentPath;
-    protected $docFolder;
+    protected $routeFolder;
     protected $queryString;
     protected $hliteOpenTag = "<span style=\"background-color: yellow;\">";
     protected $hliteCloseTag = "</span>";
@@ -43,7 +43,7 @@ class DocumentSearch implements DocumentSearchInterface
         $this->version = $documentManager->getVersion();
         $this->rootPath = $documentManager->getRootPath();
         $this->htmlPath = $documentManager->getHtmlPath();
-        $this->docFolder = $documentManager->getDocumentFolder();
+        $this->routeFolder = $documentManager->getRouteFolder();
         $this->currentPath = $this->rootPath."/".$this->htmlPath."/".$this->version."/".$this->locale;
     }
 
@@ -164,7 +164,7 @@ class DocumentSearch implements DocumentSearchInterface
                 $line = Self::getStrippedLine($line);
                 if (! empty($line)) {
                     $this->results[$i] = [
-                        'path' => $this->docFolder,
+                        'path' => $this->routeFolder,
                         'version' => $this->version,
                         'file' => $filename,
                         'line' => $this->getHlitedLine($keyword, $line),
