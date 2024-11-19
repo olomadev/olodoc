@@ -10,13 +10,13 @@ Php html documentation builder for markdown (.md) files.
 * Multi Language Support
 * Code Highlighting with Prism Js
 * Unlimited Folder Support
-* Bootstrap 5 Template Customization with Scss & Npm
-* Boostrap 5 Tab Support
+* Compatible with Bootstrap 5 Templating
+* Compatible with Boostrap 5 Tabs
 * Document Search
 * Base64 Encoded Image Rendering
 * Page Navigation Bars
-* Coded with PHP OOP Standarts
+* Coded with PHP Coding Standarts
 * Config Provider for PHP Mezzio Framework
-* Native Javascripts
+* Built with Native Javascripts
 
 For documentation visit this address <a href="https://olodoc.dev">https://olodoc.dev</a>.

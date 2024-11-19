@@ -163,21 +163,18 @@ class MenuGenerator implements MenuGeneratorInterface
             '/'.$directory.'/'.$page,
             '/'.$page
         ];
+        $isIndexRoute = in_array($routeName, $this->indexRoutes);
         foreach ($this->menu as $val) {
-            $active = '';
+            $active = '';  
             if (in_array($val['url'], $pages)) {
                 $this->subTitle = $val['label'];
                 $active = 'active';
             }
-            if (! empty($val['children'])) {
-                if (! array_key_exists("folder", $val)) {
-                    throw new ConfigurationErrorException(
-                        "Parent menu of children must be contains folder key."
-                    );
-                }
+            if (empty($active) && $isIndexRoute) {
+                $active = 'active';
             }
-            $hasFolderIcon = (array_key_exists('folder', $val) && $val['folder']);
-            if (! empty($val['children']) || $hasFolderIcon) {
+            if (! empty($val['children'])) {
+                $this->validateParentFolder($val);
                 $navFolderClass = ($routeName == $pageRoute && $page == $this->documentManager::INDEX_PAGE) ? 'nav-folder-index' : 'nav-folder';
                 $this->sideNavbarLinks.= "<li class=\"$navFolderClass nav-item\">"; 
                 $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$this->documentManager::FOLDER_ICON.'&nbsp;&nbsp;'.$val['label'].'</a>';
@@ -367,6 +364,26 @@ class MenuGenerator implements MenuGeneratorInterface
             return mb_ucfirst($value);
         }, $this->segments);
         $this->directoryLabel = implode(" / ", $directoryMap);
+    }
+
+    /**
+     * Validate parent folder value
+     * 
+     * @param  array $val configuration value
+     * @return void
+     */
+    protected function validateParentFolder(array $val)
+    {
+        if (! array_key_exists("folder", $val)) {
+            throw new ConfigurationErrorException(
+                "Parent menu of children must be contains folder key."
+            );
+        }
+        if (empty($val['folder'])) {
+            throw new ConfigurationErrorException(
+                "The folder in the children's parent menu must contain a value."
+            );
+        }
     }
 
 }

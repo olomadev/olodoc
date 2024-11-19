@@ -1,0 +1,28 @@
+<?php
+
+return [
+    //
+    // olodoc
+    // 
+    'olodoc' => [
+        'default_version' => '1.0',
+        'available_versions' => [
+            '1.0',
+            '2.0'
+        ],
+        'available_languages' => [
+            'en',
+            'tr'
+        ],
+        'images_folder' => '/public/', // location of your "/images" folder
+        'http_prefix' => 'http://', // http(s) prefix
+        'base_url' => '{locale}.olodoc-demo.local/', // or "olodoc-site.local/{locale}"
+        'root_path' => '/var/www/olodoc-php-demo', // your project root 
+        'html_path' => '/data/docs/', // save location for your ".html" document files
+        'xml_path' => '/public/sitemap.xml',
+        'build_sitemapxml' => true,
+        'base64_convert' => true, // if true all images are converted to base64 encoded strings
+        'disable_anchor_generations' => false, // it will disable anchor generations for all routes
+        'disable_anchors_for_index_pages' => false, // anchors will not be created in index.html routes
+    ],
+];

@@ -29,13 +29,13 @@ class DocumentManager implements DocumentManagerInterface
     protected $page;
     protected $directory;
     protected $version = '1.0';
-    protected $baseUrl = '/docs/';
+    protected $httpPrefix;
+    protected $baseUrl = '/';
     protected $locale = "en";
     protected $request;
     protected $routeName;
     protected $routeParams = array();
     protected $menuFile;
-    protected $routeFolder = 'docs';
     protected $htmlPath = '/data/docs/';
     protected $configPath = '/config/docs/';
     protected $xmlMapPath = '/public/';
@@ -144,26 +144,6 @@ class DocumentManager implements DocumentManagerInterface
     public function getRootPath() : string
     {
         return rtrim($this->documentRoot, '/');
-    }
-
-    /**
-     * Set route folder
-     * 
-     * @param string $route path
-     */
-    public function setRouteFolder(string $folder = 'docs')
-    {
-        $this->routeFolder = $folder;
-    }
-
-    /**
-     * Returns to route folder name
-     *
-     * @return string folder name
-     */
-    public function getRouteFolder() : string
-    {
-        return ltrim(rtrim($this->routeFolder, '/'), '/');
     }
 
     /**
@@ -370,6 +350,26 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
+     * Set http prefix
+     * 
+     * @param string $httpPrefix http(s)://
+     */
+    public function setHttpPrefix(string $httpPrefix)
+    {
+        $this->httpPrefix = $httpPrefix;
+    }
+
+    /**
+     * Returns to http prefix
+     *
+     * @param string
+     */
+    public function getHttpPrefix() : string
+    {
+        return $this->httpPrefix;
+    }
+
+    /**
      * Set docs base url
      * 
      * @param string $baseUrl doc base url
@@ -386,7 +386,9 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getBaseUrl() : string
     {
-        return rtrim($this->baseUrl, '/').'/';
+        $baseUrl = rtrim($this->baseUrl, '/').'/';
+        $baseUrl = str_replace("{locale}", $this->getLocale(), $baseUrl);
+        return $this->getHttpPrefix().$baseUrl;
     }
 
     /**

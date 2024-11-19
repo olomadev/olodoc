@@ -85,20 +85,6 @@ interface DocumentManagerInterface
     public function getRootPath() : string;
 
     /**
-     * Set route folder
-     * 
-     * @param string $route path
-     */
-    public function setRouteFolder(string $folder = 'docs');
-
-    /**
-     * Returns to route folder name
-     *
-     * @return string folder name
-     */
-    public function getRouteFolder() : string;
-
-    /**
      * Set site map xml root path
      *
      * @return void
