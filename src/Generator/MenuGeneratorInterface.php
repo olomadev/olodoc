@@ -24,11 +24,18 @@ interface MenuGeneratorInterface
     public function getMenu() : array;
 
     /**
-     * Returns to directory label
+     * Returns to current directory label
      * 
      * @return string
      */
     public function getDirectoryLabel() : string;
+
+    /**
+     * Returns to curremt page label
+     * 
+     * @return string
+     */
+    public function getPageLabel() : string;
 
     /**
      * Returns sidebar links

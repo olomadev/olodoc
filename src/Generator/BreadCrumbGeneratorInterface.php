@@ -14,5 +14,12 @@ interface BreadCrumbGeneratorInterface
      * 
      * @return void
      */
-    public function generate();
+    public function generate(string $indexName = "Index") : string;
+
+    /**
+     * Generate page bread crumbs without <ol> tags
+     *
+     * @return string
+     */
+    public function generateBody(string $indexName = "Index") : array;
 }

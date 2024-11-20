@@ -27,7 +27,7 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
      * 
      * @var object
      */
-    protected $documentManager;    
+    private $documentManager;
 
     /**
      * Constructor
@@ -44,16 +44,15 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
         $this->documentManager = $documentManager;
     }
 
-
     /**
-     * Returns to bread crumbs
+     * Generate <ol> and <li> tags for breadcrumbs
      * 
-     * @return string
+     * @return void
      */
     public function generate(string $indexName = "Index") : string
     {
         $html = '<ol class="breadcrumb">'.PHP_EOL;
-            $breadCrumbs = $this->generateBreadCrumbs($indexName);
+            $breadCrumbs = $this->generateBody($indexName);
             foreach ($breadCrumbs as $li) {
                 $html.= $li;
             }
@@ -62,38 +61,36 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
     }
 
     /**
-     * Generate page bread crumbs
+     * Generate page bread crumbs without <ol> tags
      *
      * @return string
      */
-    protected function generateBreadCrumbs($indexName = "Index")
+    public function generateBody(string $indexName = "Index") : array
     {
-        $title = $this->menuGenerator->getTitle();
-        $subTitle = $this->menuGenerator->getSubTitle();
+        $pageLabel = $this->menuGenerator->getPageLabel();
         $segments = $this->menuGenerator->getSegments();
         $baseUrl = $this->documentManager->getBaseUrl();
         $version = $this->documentManager->getVersion();
+        //
+        // first index item
+        // 
         $item = '<li class="breadcrumb-item" aria-current="page">';
             $item.= '<a href="'.$baseUrl.$version.'/index.html">'.$indexName.'</a>';
         $item.= '</li>';
-        $i = 0;
         $breadCrumbs = array();
-        $breadCrumbs[$i] = $item;
+        $breadCrumbs[0] = $item;
+        $i = 1;
         $currentPage = $this->documentManager->getPage();
         $currentRouteName = $this->documentManager->getRouteName();
-        $currentDirectory = $this->documentManager->getDirectory();
         switch ($currentRouteName) {
             case $this->documentManager::INDEX_DEFAULT:
             case $this->documentManager::INDEX_DEFAULT_INDEX:
             case $this->documentManager::INDEX_DEFAULT_SLASH:
             case $this->documentManager::INDEX_DEFAULT_LATEST:
-                $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$title.'</li>';
-                if (! empty($subTitle)) {
-                    $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$subTitle.'</li>';
-                }
+                $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';
                 break;
             case $this->documentManager::PAGE_ROUTE:
-                $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$title.'</li>';   
+                $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';   
                 break;
             case $this->documentManager::DIRECTORY_ROUTE:         
                 $segmentIndex = 0;
@@ -111,12 +108,10 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
                     $breadCrumbs[$i] = $item;
                     ++$segmentIndex;
                 }
-                $item.= '<li class="breadcrumb-item active" aria-current="page">'.$subTitle.'</li>';
+                $item.= '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';
                 $breadCrumbs[$i] = $item; 
                 break;
         }
         return $breadCrumbs;
     }
-
-
 }

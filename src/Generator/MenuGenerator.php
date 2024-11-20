@@ -103,6 +103,13 @@ class MenuGenerator implements MenuGeneratorInterface
     protected $directoryLabel = "";
 
     /**
+     * Current page label
+     * 
+     * @var string
+     */
+    protected $pageLabel = "";
+
+    /**
      * Constructor
      * 
      * @param DocumentManagerInterface $documentManager
@@ -138,37 +145,40 @@ class MenuGenerator implements MenuGeneratorInterface
     public function generate() : array
     {   
         $page = $this->documentManager->getPage();
-        $directory = $this->documentManager->getDirectory();
         $pageRoute = $this->documentManager::PAGE_ROUTE;
         $indexPage = $this->documentManager::INDEX_PAGE;
         $icon = $this->documentManager::FOLDER_ICON;
 
-        $this->buildSegments($directory);
+        $this->buildSegments();
         $this->buildDirectoryLabel();
+
         $routeName = $this->documentManager->getRouteName();
         $pages = [
-            '/'.$directory.'/'.$page,
+            '/'.$this->documentManager->getDirectory().'/'.$page,
             '/'.$page
         ];
         $i = 0;
         $isIndexRoute = in_array($routeName, $this->indexRoutes);
         foreach ($this->menu as $val) {
-            $active = ($isIndexRoute && $i == 0) ? 'active' : ''; // active first menu if page == index
-            if (in_array($val['url'], $pages)) {
-                $active = 'active';
+            if (! empty($val['url'])) {
+                $active = ($isIndexRoute && $i == 0) ? 'active' : ''; // active first menu if page == index
+                if (in_array($val['url'], $pages)) {
+                    $this->pageLabel = empty($val['label']) ? "" : mb_ucfirst($val['label']);
+                    $active = 'active';
+                }
+                if (! empty($val['children'])) {
+                    $this->validateParentFolder($val);
+                    $navFolderClass = ($routeName == $pageRoute && $page == $indexPage) ? 'nav-folder-index' : 'nav-folder';
+                    $this->sideNavbarLinks.= "<li class=\"$navFolderClass nav-item\">"; 
+                    $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$icon.'&nbsp;&nbsp;'.$val['label'].'</a>';
+                } else {
+                    $this->sideNavbarLinks.= '<li class="nav-item">'; 
+                    $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$val['label'].'</a>';
+                }
+                $this->generateSubItems($val['url'], $pages, $page);
+                $this->sideNavbarLinks.= '</li>';  // end nav items
+                ++$i;
             }
-            if (! empty($val['children'])) {
-                $this->validateParentFolder($val);
-                $navFolderClass = ($routeName == $pageRoute && $page == $indexPage) ? 'nav-folder-index' : 'nav-folder';
-                $this->sideNavbarLinks.= "<li class=\"$navFolderClass nav-item\">"; 
-                $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$icon.'&nbsp;&nbsp;'.$val['label'].'</a>';
-            } else {
-                $this->sideNavbarLinks.= '<li class="nav-item">'; 
-                $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$val['label'].'</a>';
-            }
-            $this->generateSubItems($val['url'], $pages, $page);
-            $this->sideNavbarLinks.= '</li>';  // end nav items
-            ++$i;
         }
         return $this->data;
     }
@@ -219,13 +229,23 @@ class MenuGenerator implements MenuGeneratorInterface
     }
 
     /**
-     * Returns to directory label
+     * Returns to current directory label
      * 
      * @return string
      */
     public function getDirectoryLabel() : string
     {
         return $this->directoryLabel;
+    }
+
+    /**
+     * Returns to curremt page label
+     * 
+     * @return string
+     */
+    public function getPageLabel() : string
+    {
+        return $this->pageLabel;
     }
 
     /**
@@ -303,12 +323,12 @@ class MenuGenerator implements MenuGeneratorInterface
     /**
      * Build segment array
      * 
-     * @param  string $directory dir path
      * @return void
      */
-    protected function buildSegments(string $directory)
+    protected function buildSegments()
     {
         $i = 0;
+        $directory = $this->documentManager->getDirectory();
         $directories = explode("/", $directory);
         foreach ($directories as $dirname) {
             $this->segments[$i] = mb_strtolower($dirname);
@@ -317,16 +337,21 @@ class MenuGenerator implements MenuGeneratorInterface
     }
 
     /**
-     * Build directory labels
+     * Build directory label
      * 
      * @return void
      */
     protected function buildDirectoryLabel()
     {
-        $directoryMap = array_map(function($value) {
-            return mb_ucfirst($value);
-        }, $this->segments);
-        $this->directoryLabel = implode(" / ", $directoryMap);
+        if (count($this->segments) > 1) {
+            $directoryMap = array_map(function($value) {
+                return mb_ucfirst($value);
+            }, $this->segments);
+            $this->directoryLabel = implode(" / ", $directoryMap);
+        } else {
+            $directoryKey = $this->documentManager->getDirectory();
+            $this->directoryLabel = mb_ucfirst($directoryKey);
+        }
     }
 
     /**
