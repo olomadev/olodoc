@@ -187,7 +187,10 @@ class PageGenerator implements PageGeneratorInterface
             "",
             $path
         );
-        $item = array_filter(
+        //
+        // find current page menu item
+        // 
+        $rowArray = array_filter(
             $this->menu, 
             function ($v) use($currentPath) {
                 if (! empty($v['url'])) {
@@ -196,7 +199,10 @@ class PageGenerator implements PageGeneratorInterface
                 return false;
             }
         );
-        $this->meta = empty($item['meta']) ? $defaultMeta : $item['meta'];
+        if (is_array($rowArray) && ! empty($rowArray)) {
+            $item = current($rowArray);    
+            $this->meta = empty($item['meta']) ? $defaultMeta : $item['meta'];
+        }
     }
 
     /**
