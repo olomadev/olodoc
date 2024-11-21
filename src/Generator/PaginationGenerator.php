@@ -37,14 +37,14 @@ class PaginationGenerator implements PaginationGeneratorInterface
      * 
      * @var object
      */
-    protected $documentManager;
+    private $documentManager;
 
     /**
      * Menu data
      * 
      * @var array
      */
-    protected $menu = array();
+    private $menu = array();
 
     /**
      * Constructor
@@ -73,22 +73,22 @@ class PaginationGenerator implements PaginationGeneratorInterface
         $prevPageData = $this->getPrevPageData();
         $nextPageData = $this->getNextPageData();
         $html = "<div class=\"row g-0 no-select\">";
-            $html.= "<div class=\"col col-6\">";
-                        if (! empty($prevPageData)) {
+            $html.= "<div class=\"col-6\">";
+                        if (! empty($prevPageData['url']) && ! empty($prevPageData)) {
                           $html.= "<div class=\"control\" onclick=\"olodocPrevPage('".$prevPageData['url']."')\">";
                             $html.= "<div class=\"iterator-label\">$prevPageLabel</div>";
                             $html.= "<a href=\"javascript:void(0);\">« ".$prevPageData['label']."</a>";
                           $html.= "</div>";
                         }
             $html.= '</div>';
-            $html.= '<div class="col col-6">';
-                        if (! empty($nextPageData)) {
+            $html.= '<div class="col-6">';
+                        if (! empty($nextPageData['url']) && ! empty($nextPageData)) {
                             $html.= "<div class=\"control float-end text-end\" onclick=\"olodocNextPage('".$nextPageData['url']."')\">";
                                 $html.= "<div class=\"iterator-label\">$nextPageLabel</div>";
                                 $html.= "<a href=\"javascript:void(0);\">".$nextPageData['label']." »</a>";
                             $html.= "</div>";
                         }
-            $html.= "</div>";
+            $html.= "</div>";    
         $html.= "</div>";
         $html.= $pageFooter;
         return $html.PHP_EOL;
@@ -124,27 +124,9 @@ class PaginationGenerator implements PaginationGeneratorInterface
         $i = 0;
         $currentPageData = array();
         foreach ($this->menu as $key => $val) {
-            if ($val['url'] == $path) { // Only if we are on the same route build the pagination ..
+            if (! empty($val['url']) && $val['url'] == $path) { // Only if we are on the same route build the pagination ..
                 $currentPageData = $this->menu[$i];
                 $currentPageData['current_index'] = $i;
-            }
-            //
-            // For not directory index routes pagination must be reset
-            //
-            if ($currentRouteName == $defaultIndexRoute || $currentPage == $this->documentManager::INDEX_PAGE) {
-                $i = 0;
-                $currentPageData = $this->menu[$i];
-                $currentPageData['current_index'] = $i;
-            }
-            if (! empty($val['children'])) {
-                $c = 0;
-                foreach ($val['children'] as $child) {
-                    if ($currentRouteName == $defaultIndexRoute || $currentPage == $this->documentManager::INDEX_PAGE) { // 'doc_default_index.html'
-                        $currentPageData = $this->menu[0];
-                        $currentPageData['current_index'] = -1;
-                    }
-                    ++$c;
-                }
             }
             ++$i;
         }

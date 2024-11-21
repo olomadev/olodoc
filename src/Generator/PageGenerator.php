@@ -4,201 +4,243 @@ declare(strict_types=1);
 
 namespace Olodoc\Generator;
 
-use Olodoc\Loader\FileLoader;
-use Olodoc\Loader\MenuLoader;
 use Olodoc\DocumentManagerInterface;
-use Olodoc\Exception\ConfigurationErrorException;
 
+/**
+ * Multi-byte ucfirst
+ */
+if (! function_exists('mb_ucfirst') 
+    && function_exists('mb_substr')) {
+    function mb_ucfirst($string) {
+        $string = mb_strtoupper(mb_substr($string, 0, 1)) . mb_substr($string, 1);
+        return $string;
+    }
+}
 /**
  * @author Oloma <support@oloma.dev>
  *
- * Pagination Generator
+ * Page Generator
  *
- * Responsible for build paginations on the documentation page
+ * It is responsible for management page functions such as doc title, pagination, 
+ * menus, js codes and links for links to ".html" pages.
  */
-class PaginationGenerator implements PaginationGeneratorInterface
+class PageGenerator implements PageGeneratorInterface
 {
     /**
-     * Document generator footer
-     * 
-     * @var string
-     */
-    private $pageFooter;
-
-    /**
-     * Menu Generator class
-     * 
-     * @var object
-     */
-    private $menuGenerator;
-
-    /**
-     * Document manager
-     * 
-     * @var object
-     */
-    private $documentManager;
-
-    /**
-     * Menu data
+     * Current menu data
      * 
      * @var array
      */
-    private $menu = array();
+    protected $menu = array();
+
+    /**
+     * Current page meta data
+     * 
+     * @var string
+     */
+    protected $meta = array();
+
+    /**
+     * Current html data
+     * 
+     * @var array
+     */
+    protected $data = array();
+
+    /**
+     * Js class
+     * 
+     * @var object
+     */
+    protected $jsGenerator;
+
+    /**
+     * MenuGenerator class
+     * 
+     * @var object
+     */
+    protected $menuGenerator;
+
+    /**
+     * DocumentManager class
+     * 
+     * @var object
+     */
+    protected $documentManager;
+
+    /**
+     * PaginationGenerator class
+     * 
+     * @var object
+     */
+    protected $paginationGenerator;
+
+    /**
+     * BreadCrumbGenerator class
+     * 
+     * @var object
+     */
+    protected $breadCrumbGenerator;
 
     /**
      * Constructor
      * 
-     * @param DocumentManagerInterface $documentManager object
-     * @param MenuGeneratorInterface   $menuGenerator   object
+     * @param DocumentManagerInterface $documentManager
      */
-    public function __construct(
-        DocumentManagerInterface $documentManager,
-        MenuGeneratorInterface $menuGenerator
-    )
+    public function __construct(DocumentManagerInterface $documentManager)
     {
-        $this->menu = $menuGenerator->getMenu();
-        $this->menuGenerator = $menuGenerator;
         $this->documentManager = $documentManager;
+        $this->menuGenerator = new MenuGenerator($documentManager);
+        $this->data = $this->menuGenerator->generate();
+        $this->jsGenerator = new JsGenerator($documentManager);
+        $this->paginationGenerator = new PaginationGenerator($documentManager, $this->menuGenerator);
+        $this->breadCrumbGenerator = new BreadCrumbGenerator($documentManager, $this->menuGenerator);
     }
 
     /**
-     * Generates and returns to navigation bar html with footer
+     * Returns to current page meta data
      * 
+     * @return object
+     */
+    public function getMeta() : array
+    {
+        return $this->meta;
+    }
+
+    /**
+     * Returns to Menu Generator class
+     * 
+     * @return object
+     */
+    public function getMenu() : MenuGeneratorInterface
+    {
+        return $this->menuGenerator;
+    }
+
+    /**
+     * Returns to document manager class
+     * 
+     * @return object
+     */
+    public function getDocumentManager() : DocumentManagerInterface
+    {
+        return $this->documentManager;
+    }
+
+    /**
+     * Returns to breadcrumb generator class
+     * 
+     * @return object
+     */
+    public function getBreadCrumb() : BreadCrumbGeneratorInterface
+    {
+        return $this->breadCrumbGenerator;
+    }
+
+    /**
+     * Returns to Pagination Generator class
+     * 
+     * @return object
+     */
+    public function getPagination() : PaginationGeneratorInterface
+    {
+        return $this->paginationGenerator;
+    }
+        
+    /**
+     * Returns to Js Generator class
+     * 
+     * @return object
+     */
+    public function getJs() : JsGeneratorInterface
+    {
+        return $this->jsGenerator;
+    }
+
+    /**
+     * Generates page items and returns array data
+     * 
+     * @return array data
+     */
+    public function generate()
+    {  
+        $this->menu = $this->menuGenerator->getMenu();
+        $this->setMeta();
+        return $this->data;
+    }
+
+    /**
+     * Sets page meta data
+     *
+     * @return void
+     */
+    protected function setMeta()
+    {
+        $path = $this->documentManager->getRequest()->getUri()->getPath();
+        $defaultMeta = array(
+            'title' => null,
+            'keywords' => null,
+            'description' => null,
+        );
+        $currentPath = str_replace(
+            "/".$this->documentManager->getVersion(),  // remove version number
+            "",
+            $path
+        );
+        $item = array_filter(
+            $this->menu, 
+            function ($v) use($currentPath) {
+                if (! empty($v['url'])) {
+                    return strpos("/".ltrim($v['url'], "/"), $currentPath) !== false;    
+                }
+                return false;
+            }
+        );
+        $this->meta = empty($item['meta']) ? $defaultMeta : $item['meta'];
+    }
+
+    /**
+     * Returns to html version combobox
+     * 
+     * @param  string $versionText version text
      * @return string
      */
-    public function generate($prevPageLabel = "", $nextPageLabel = "") : string
+    public function getVersionCombobox(string $versionText = "Version") : string
     {
-        $pageFooter = $this->generateFooter(); // don't remove this without permission
-        $prevPageData = $this->getPrevPageData();
-        $nextPageData = $this->getNextPageData();
-        $html = "<div class=\"row g-0 no-select\">";
-            $html.= "<div class=\"col-6\">";
-                        if (! empty($prevPageData['url']) && ! empty($prevPageData)) {
-                          $html.= "<div class=\"control\" onclick=\"olodocPrevPage('".$prevPageData['url']."')\">";
-                            $html.= "<div class=\"iterator-label\">$prevPageLabel</div>";
-                            $html.= "<a href=\"javascript:void(0);\">« ".$prevPageData['label']."</a>";
-                          $html.= "</div>";
-                        }
-            $html.= '</div>';
-            $html.= '<div class="col-6">';
-                        if (! empty($nextPageData['url']) && ! empty($nextPageData)) {
-                            $html.= "<div class=\"control float-end text-end\" onclick=\"olodocNextPage('".$nextPageData['url']."')\">";
-                                $html.= "<div class=\"iterator-label\">$nextPageLabel</div>";
-                                $html.= "<a href=\"javascript:void(0);\">".$nextPageData['label']." »</a>";
-                            $html.= "</div>";
-                        }
-            $html.= "</div>";    
-        $html.= "</div>";
-        $html.= $pageFooter;
+        $html = "<select id=\"version-combobox\" class=\"form-select\" onchange=\"olodocChangeVersion()\">".PHP_EOL;
+            foreach ($this->documentManager->getAvailableVersions() as $version) {
+                $selected = ($this->documentManager->getVersion() == $version) ? "selected" : "";
+                $html.= "<option value=\"$version\" $selected>".$versionText." $version</option>".PHP_EOL;  
+            }
+        $html.= "</select>";
         return $html.PHP_EOL;
     }
 
     /**
-     * Returns to current page data
-     * 
-     * @return array
-     */
-    private function getCurrentPageData() : array
-    {
-        $version = $this->documentManager->getVersion();
-        $currentPath = str_replace(
-            $this->documentManager::LATEST_VERSION_NAME, // support for latest version
-            $version,
-            $this->documentManager->getRequest()->getUri()->getPath()
-        );
-        $currentPage = $this->documentManager->getPage();
-        $currentRouteName = $this->documentManager->getRouteName();
-        $defaultIndexRoute = $this->documentManager::INDEX_DEFAULT_INDEX;
-        $path = strstr($currentPath, "/".$version."/");
-        if (is_string($path)) {
-            $path = str_replace(
-                $this->documentManager->getVersion(), 
-                "",
-                $path
-            );
-        }
-        if (! empty($path)) {
-            $path = substr($path, 1);  // remove unnecessary slash "//index.html"
-        }
-        $i = 0;
-        $currentPageData = array();
-        foreach ($this->menu as $key => $val) {
-            if (! empty($val['url']) && $val['url'] == $path) { // Only if we are on the same route build the pagination ..
-                $currentPageData = $this->menu[$i];
-                $currentPageData['current_index'] = $i;
-            }
-            ++$i;
-        }
-        $this->validateFooterText();
-        return $currentPageData;
-    }
-
-    /**
-     * Returns to previous page data
-     * 
-     * @return array
-     */
-    private function getPrevPageData() : array
-    {
-        $data = $this->getCurrentPageData();
-        if (array_key_exists('current_index', $data)) {
-            $previousIndex = $data['current_index'] - 1;
-            if (! empty($data['children'][$previousIndex])) {
-                return $data['children'][$previousIndex];
-            }
-            if (! empty($this->menu[$previousIndex])) {
-                return $this->menu[$previousIndex];
-            }
-        } 
-        return array();
-    }
-
-    /**
-     * Returns to next page data
-     * 
-     * @return array
-     */
-    private function getNextPageData() : array
-    {
-        $data = $this->getCurrentPageData();
-        if (array_key_exists('current_index', $data)) {
-            $previousIndex = $data['current_index'] + 1;
-            if (! empty($data['children'][$previousIndex])) {
-                return $data['children'][$previousIndex];
-            }
-            if (! empty($this->menu[$previousIndex])) {
-                return $this->menu[$previousIndex];
-            }
-        }
-        return array();
-    }
-
-    /**
-     * Generate powered by footer
+     * Returns to search box input
      * 
      * @return string
      */
-    private function generateFooter() : string
+    public function getSearchBoxInput() : string
     {
-        $this->pageFooter = '<div style="margin-top: var(--ol-body-footer-margin-top);font-size: var(--ol-body-footer-font-size);">
-            <p class="text-end" style="padding-top: var(--ol-body-footer-padding-top);">This document was created with <b><a href="https://olodoc.dev" target="_blank">Olodoc</a></b>.</p>
-        </div>';
-        return $this->pageFooter;
+        return '<div id="search-box" class="input-box">
+              <input type="text" id="search-input" class="form-control input-lg" onkeyup="olodocSearchResult(this.value)" />
+              <svg id="cancel-icon" style="display:none;cursor:pointer;" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -860 960 960" width="24px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+              <svg id="search-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 -860 960 960" fill="currentColor"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
+            </div>'.PHP_EOL;
     }
 
     /**
-     * Validate page footer variable
+     * Returns to navigation bar html
      * 
-     * @return void
+     * @return string
      */
-    private function validateFooterText()
+    public function getFooter($prevPageLabel = "", $nextPageLabel = "") : string
     {
-        if (strpos($this->pageFooter, "Olodoc") === false) {
-            die(
-                "Please do not remove the 'This document was created with Olodoc' statement in your footer."
-            );
-        }
+        return $this->paginationGenerator->getPaginationBar(
+            $prevPageLabel,
+            $nextPageLabel
+        );
     }
 
 }
