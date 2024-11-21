@@ -64,12 +64,12 @@ class GenerateHtmlCommand extends Command
 
     protected function validateConfigurations()
     {
-        if (empty($this->config['available_languages'])) {
+        if (empty($this->config['available_locales'])) {
             throw new Exception(
                 "The configuration key 'available_languages' cannot be empty in your 'olodoc' configuration."
             );
         }
-        $this->availableLanguages = $this->config['available_languages'];
+        $this->availableLanguages = $this->config['available_locales'];
         if (empty($this->config['root_path'])) {
             throw new Exception(
                 "The configuration key 'root_path' cannot be empty in your 'olodoc' configuration."
