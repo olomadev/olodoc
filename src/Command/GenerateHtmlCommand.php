@@ -127,11 +127,13 @@ class GenerateHtmlCommand extends Command
         foreach (new RecursiveIteratorIterator($iterator) as $splFileInfo) {
 
             $file = $splFileInfo->getPathName();
-            preg_match("#/".preg_quote($this->config['route_folder'])."\/(.*?)/#", $file, $matches);
-            $version = empty($matches[1]) ? null : $matches[1];
+            preg_match("#(\d+\.)?(\d+\.)?(\*|\d+)#", $file, $matches);
+            $version = null;
+            if (! empty($matches[0])) {
+                $version = $matches[0];
+            }
             $parts = pathinfo($file);
             $extension = strtolower($parts['extension']);
-
             if ($extension == 'md') {
                 $text = file_get_contents($file);
                 //
@@ -181,6 +183,7 @@ class GenerateHtmlCommand extends Command
                 file_put_contents($filePath, $html);
                 chmod($filePath, 0644);
             }
+
         }
         if ($this->config['build_sitemapxml']) {
             $this->siteMapXml.= '</urlset>'.PHP_EOL;
@@ -328,7 +331,7 @@ class GenerateHtmlCommand extends Command
      * @param  SplFileInfo $splFileInfo object
      * @return void
      */
-    protected function buildSiteMapXml($splFileInfo, string $version)
+    protected function buildSiteMapXml($splFileInfo, $version)
     {
         $file = $splFileInfo->getPathName();
         $filename = pathinfo($splFileInfo->getFilename(), PATHINFO_FILENAME);
@@ -349,16 +352,26 @@ class GenerateHtmlCommand extends Command
                 //
                 // Sitemap Url
                 // 
+                $versionString = $version;
+                if (empty($version)) {
+                   $versionString = "/";
+                } else {
+                   $versionString = "/$version/";
+                }
                 if (empty($subFolder)) {
                     if (empty($folder)) {
-                        $url = $this->httpPrefix.$this->baseUrl."/$version/$filename.html";
+                        $url = $this->httpPrefix.$this->baseUrl.$versionString."$filename.html";
                     } else {
-                        $url = $this->httpPrefix.$this->baseUrl."/$version/$folder/$filename.html";
+                        $url = $this->httpPrefix.$this->baseUrl.$versionString."$folder/$filename.html";
                     }
                 } else {
-                    $url = $this->httpPrefix.$this->baseUrl."/$version/$folder/$subFolder/$filename.html";
+                    $url = $this->httpPrefix.$this->baseUrl.$versionString."$folder/$subFolder/$filename.html";
                 }
-                $url = str_replace("{locale}", $langId, $url);
+                if ($this->config['remove_default_locale'] && $this->config['default_locale'] == $langId) {
+                    $url = str_replace(["{locale}.", "{locale}"], "", $url);    
+                } else {
+                    $url = str_replace("{locale}", $langId, $url);
+                }
                 $this->siteMapXml.= "\t<url>".PHP_EOL;
                 $this->siteMapXml.= "\t\t<loc>$url</loc>".PHP_EOL;
                 $this->siteMapXml.= "\t\t<changefreq>weekly</changefreq>".PHP_EOL;
