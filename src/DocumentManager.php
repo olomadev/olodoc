@@ -41,10 +41,13 @@ class DocumentManager implements DocumentManagerInterface
     protected $xmlMapPath = '/public/';
     protected $documentRoot;
     protected $defaultVersion;
+    protected $defaultLocale;
+    protected $removeDefaultLocale = false;
     protected $base64Convert = false;
+    protected $availableLocales = array();
     protected $availableVersions = array();
-    protected $disableAnchorGenerations = false;
-    protected $disableAnchorsForIndexPages = false;
+    protected $anchorGenerations = false;
+    protected $anchorsForIndexPages = false;
 
     /**
      * Set available versions for your documents
@@ -84,6 +87,46 @@ class DocumentManager implements DocumentManagerInterface
     public function getDefaultVersion() : string
     {
         return $this->defaultVersion;
+    }
+
+    /**
+     * Set available languages
+     * 
+     * @param array $locales language keys
+     */
+    public function setAvailableLocales(array $locales)
+    {
+        $this->availableLocales = $locales;
+    }
+
+    /**
+     * Returns to available locales
+     *
+     * @return array
+     */
+    public function getAvailableLocales() : array
+    {
+        return $this->availableLocales;
+    }
+
+    /**
+     * Set default locale
+     * 
+     * @param string $locale locale
+     */
+    public function setDefaultLocale(string $defaultLocale)
+    {
+        $this->defaultLocale = $defaultLocale;
+    }
+
+    /**
+     * Returns to default locale
+     *
+     * @return string
+     */
+    public function getDefaultLocale() : string
+    {
+        return $this->defaultLocale;
     }
 
     /**
@@ -167,14 +210,34 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * Disables anchor generations
+     * Enable/Disable remove default locale from base url
+     * 
+     * @param bool $bool boolean
+     */
+    public function setRemoveDefaultLocale(bool $bool)
+    {
+        $this->removeDefaultLocale = $bool;
+    }
+
+    /**
+     * Returns to anchor generations boolean
+     *
+     * @return boolean
+     */
+    public function getRemoveDefaultLocale() : Bool
+    {
+        return $this->removeDefaultLocale;
+    }
+
+    /**
+     * Enable/Disable anchor generations
      * 
      * @param  boolean $bool bool
      * @return void
      */
-    public function disableAnchorGenerations($bool = true)
+    public function setAnchorGenerations(bool $bool)
     {
-        $this->disableAnchorGenerations = $bool;
+        $this->anchorGenerations = $bool;
     }
 
     /**
@@ -184,18 +247,18 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getAnchorGenerations() : Bool
     {
-        return $this->disableAnchorGenerations;
+        return $this->anchorGenerations;
     }
 
     /**
-     * Disables anchor generations for index
+     * Enable/Disable anchor generations for index
      * 
      * @param  boolean $bool bool
      * @return void
      */
-    public function disableAnchorsForIndexPages($bool = true)
+    public function setAnchorsForIndexPages(bool $bool)
     {
-        $this->disableAnchorsForIndexPages = $bool;
+        $this->anchorsForIndexPages = $bool;
     }
 
     /**
@@ -205,7 +268,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getAnchorsForIndexPages() : Bool
     {
-        return $this->disableAnchorsForIndexPages;
+        return $this->anchorsForIndexPages;
     }
 
     /**
@@ -292,6 +355,7 @@ class DocumentManager implements DocumentManagerInterface
 
     /**
      * Set request
+     * 
      * @param object $request Psr\Http\Message\ServerRequestInterface;
      */
     public function setRequest(ServerRequestInterface $request)
@@ -386,9 +450,13 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getBaseUrl() : string
     {
-        $baseUrl = rtrim($this->baseUrl, '/').'/';
-        $baseUrl = str_replace("{locale}", $this->getLocale(), $baseUrl);
-        return $this->getHttpPrefix().$baseUrl;
+        $baseUrl = $this->baseUrl;
+        if ($this->getRemoveDefaultLocale() && $this->getDefaultLocale() == $this->getLocale() ) {
+            $baseUrl = str_replace(["{locale}.","{locale}"], "", $baseUrl);
+        } else {
+            $baseUrl = str_replace("{locale}", $this->getLocale(), $baseUrl);
+        }
+        return $this->getHttpPrefix().rtrim($baseUrl, "/")."/";
     }
 
     /**

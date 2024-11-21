@@ -42,33 +42,60 @@ interface DocumentManagerInterface
     public function getDefaultVersion() : string;
 
     /**
-     * Set config path
+     * Set available languages
+     * 
+     * @param array $locales language keys
+     */
+    public function setAvailableLocales(array $locales);
+
+    /**
+     * Returns to available locales
+     *
+     * @return array
+     */
+    public function getAvailableLocales() : array;
+
+    /**
+     * Set default locale
+     * 
+     * @param string $locale locale
+     */
+    public function setDefaultLocale(string $defaultLocale);
+
+    /**
+     * Returns to default locale
+     *
+     * @return string
+     */
+    public function getDefaultLocale() : string;
+
+    /**
+     * Set site map xml root path
      *
      * @return void
      */
-    public function setConfigPath(string $configPath = '/config/docs/');
+    public function setXmlMapPath(string $xmlMapPath);
 
     /**
-     * Returns to config path
+     * Returns to site map xml path
      * 
      * @return string
      */
-    public function getConfigPath() : string;
+    public function getXmlMapPath() : string;
 
     /**
-     * Disable anchor generations
-     * 
-     * @param  Bool   $bool boolean value
+     * Set site map xml root path
+     *
      * @return void
      */
-    public function disableAnchorGenerations();
+    public function setBase64Convert(bool $bool);
 
     /**
-     * Returns to anchor generations boolean
+     * Returns to base64 convert boolean
      *
-     * @return boolean
+     * @return void
      */
-    public function getAnchorGenerations() : Bool;
+    public function getBase64Convert() : bool;
 
     /**
      * Set document root path
@@ -85,32 +112,62 @@ interface DocumentManagerInterface
     public function getRootPath() : string;
 
     /**
-     * Set site map xml root path
+     * Set config path
      *
      * @return void
      */
-    public function setXmlMapPath(string $xmlMapPath);
+    public function setConfigPath(string $configPath = '/config/docs/');
 
     /**
-     * Returns to site map xml path
+     * Returns to config path
      * 
      * @return string
      */
-    public function getXmlMapPath() : string;
-    
-    /**
-     * Set site map xml root path
-     *
-     * @return void
-     */
-    public function setBase64Convert(bool $bool);
+    public function getConfigPath() : string;
 
     /**
-     * Returns to base64 convert boolean
+     * Enable/Disable remove default locale from base url
+     * 
+     * @param bool $bool boolean
+     */
+    public function setRemoveDefaultLocale(bool $bool);
+
+    /**
+     * Returns to anchor generations boolean
      *
+     * @return boolean
+     */
+    public function getRemoveDefaultLocale() : Bool;
+
+    /**
+     * Enable/Disable anchor generations
+     * 
+     * @param  boolean $bool bool
      * @return void
      */
-    public function getBase64Convert() : bool;
+    public function setAnchorGenerations(bool $bool);
+
+    /**
+     * Returns to anchor generations boolean
+     *
+     * @return boolean
+     */
+    public function getAnchorGenerations() : Bool;
+
+    /**
+     * Enable/Disable anchor generations for index
+     * 
+     * @param  boolean $bool bool
+     * @return void
+     */
+    public function setAnchorsForIndexPages(bool $bool);
+
+    /**
+     * Returns to disable anchor generations for index boolean
+     *
+     * @return boolean
+     */
+    public function getAnchorsForIndexPages() : Bool;
 
     /**
      * Set html path
@@ -149,6 +206,7 @@ interface DocumentManagerInterface
 
     /**
      * Set request
+     * 
      * @param object $request Psr\Http\Message\ServerRequestInterface;
      */
     public function setRequest(ServerRequestInterface $request);
@@ -187,6 +245,20 @@ interface DocumentManagerInterface
      * @return string
      */
     public function getVersion() : string;
+
+    /**
+     * Set http prefix
+     * 
+     * @param string $httpPrefix http(s)://
+     */
+    public function setHttpPrefix(string $httpPrefix);
+
+    /**
+     * Returns to http prefix
+     *
+     * @param string
+     */
+    public function getHttpPrefix() : string;
 
     /**
      * Set docs base url

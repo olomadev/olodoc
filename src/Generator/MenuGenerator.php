@@ -175,7 +175,7 @@ class MenuGenerator implements MenuGeneratorInterface
                     $this->sideNavbarLinks.= '<li class="nav-item">'; 
                     $this->sideNavbarLinks.= '<a href="'.$this->baseUrl.$this->version.$val['url'].'" class="nav-link '.$active.'">'.$val['label'].'</a>';
                 }
-                $this->generateSubItems($val['url'], $pages, $page);
+                $this->generateAnchors($val['url'], $pages, $page);
                 $this->sideNavbarLinks.= '</li>';  // end nav items
                 ++$i;
             }
@@ -184,25 +184,28 @@ class MenuGenerator implements MenuGeneratorInterface
     }
 
     /**
-     * Generate sub items of the menu
+     * Generate anchors of current page
      * 
      * @param  string $pageUrl page url
      * @param  array  $pages   defined pages
      * @param  string $page    current page
      * @return void
      */
-    protected function generateSubItems(string $pageUrl, array $pages, string $page = "")
+    protected function generateAnchors(string $pageUrl, array $pages, string $page = "")
     {
         $currentRouteName = $this->documentManager->getRouteName();
-        $disableAnchorGenerations = $this->documentManager->getAnchorGenerations();
-        $disableAnchorsForIndexPages = $this->documentManager->getAnchorsForIndexPages();
+        $anchorGenerations = $this->documentManager->getAnchorGenerations();
+        $anchorsForIndexPages = $this->documentManager->getAnchorsForIndexPages();
         
         if (count($this->data['subItems']) > 0 && in_array($pageUrl, $pages)) {
-            if (false == $disableAnchorGenerations) {
-                if (false == $disableAnchorsForIndexPages 
-                    && $page != $this->documentManager::INDEX_PAGE // do not generate anchors for introduction pages ...
+            if ($anchorGenerations) {
+                if (false == $anchorsForIndexPages) {
+                  if ($page != $this->documentManager::INDEX_PAGE // do not generate anchors for introduction pages ...
                     && ! in_array($currentRouteName, $this->indexRoutes)) {
-                    $this->anchorGenerator->generate();    
+                        $this->anchorGenerator->generate();
+                    }
+                } else {
+                    $this->anchorGenerator->generate();
                 }
             }
             $anchorItems = $this->anchorGenerator->getAnchorItems();

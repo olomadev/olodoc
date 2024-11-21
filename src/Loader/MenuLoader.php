@@ -137,6 +137,22 @@ class MenuLoader implements MenuLoaderInterface
     protected function buildMenuAndFolders(array $menu) : array
     {
         foreach ($menu as $val) {
+            /**
+             * If the first child metadata is empty and the child and parent url values 
+             * are equal to index.html, copy the first child metadata to the parent directory 
+             * folder configuration for maximum compatibility.
+             */
+            if (! empty($val['folder']) 
+                && ! empty($val['meta']) 
+                && ! empty($val['children'])
+                && ! empty($val['url'])
+                && empty($val['children'][0]['meta'])
+                && false !== strpos($val['url'], $this->documentManager::INDEX_PAGE)
+                && ! empty($val['children'][0]['url'])
+                && false !== strpos($val['children'][0]['url'], $this->documentManager::INDEX_PAGE)
+            ) {
+                $val['children'][0]['meta'] = $val['meta'];
+            }
             if (! empty($val['children'])) {
                 $folderKey = mb_strtolower($val['folder']);
                 $this->folderableMenu[$folderKey] = $val['children'];
