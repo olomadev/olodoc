@@ -10,13 +10,12 @@ namespace Olodoc\Generator;
 interface AnchorGeneratorInterface
 {
     /**
-     * Parse <a href=""></a> tags
+     * Parse anchor tags
      *
-     * @param  string $html markdown html content
-     *
-     * @return string html
+     * @param  string $htmlBody markdown content
+     * @return array
      */
-    public function parse(string $html);
+    public function parse(string $htmlBody) : array;
 
     /**
      * Generate anchor links with <li> tags

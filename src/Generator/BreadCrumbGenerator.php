@@ -77,9 +77,9 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
         $item = '<li class="breadcrumb-item" aria-current="page">';
             $item.= '<a href="'.$baseUrl.$version.'/index.html">'.$indexName.'</a>';
         $item.= '</li>';
+        $i = 1;
         $breadCrumbs = array();
         $breadCrumbs[0] = $item;
-        $i = 1;
         $currentPage = $this->documentManager->getPage();
         $currentRouteName = $this->documentManager->getRouteName();
         switch ($currentRouteName) {
@@ -90,28 +90,40 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
                 $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';
                 break;
             case $this->documentManager::PAGE_ROUTE:
-                $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';   
+                $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';
                 break;
             case $this->documentManager::DIRECTORY_ROUTE:         
-                $segmentIndex = 0;
                 $segmentLevel = count($segments) - 1;
                 foreach ($segments as $level => $dirname) {
+                    $directoryLabel = Self::getDirectoryLabel($dirname);
                     ++$i;
                     $currentDirectory = ($level > 0) ? implode("/", array_values($segments)) : $dirname;
                     $item = '<li class="breadcrumb-item active" aria-current="page">';
                     if ($currentPage == $this->documentManager::INDEX_PAGE && $segmentLevel == $level) {
-                        $item.= mb_ucfirst($dirname);
+                        $item.= $directoryLabel;
                     } else {
-                        $item.= '<a href="'.$baseUrl.$version.'/'.$currentDirectory.'/index.html">'.mb_ucfirst($dirname).'</a>';
+                        $item.= '<a href="'.$baseUrl.$version.'/'.$currentDirectory.'/index.html">'.$directoryLabel.'</a>';
                     }
                     $item.= '</li>';
                     $breadCrumbs[$i] = $item;
-                    ++$segmentIndex;
                 }
-                $item.= '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';
-                $breadCrumbs[$i] = $item; 
                 break;
         }
         return $breadCrumbs;
     }
+
+    /**
+     * Generate directory label
+     * 
+     * @param  string $dirname name
+     * @return string
+     */
+    protected static function getDirectoryLabel($dirname)
+    {
+        $dashMap = array_map(function($v) {
+            return mb_ucfirst($v);
+        }, explode("-", $dirname));
+        return implode(" ", $dashMap);
+    }
+
 }

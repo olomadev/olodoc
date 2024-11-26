@@ -154,7 +154,8 @@ class MenuLoader implements MenuLoaderInterface
                 $val['children'][0]['meta'] = $val['meta'];
             }
             if (! empty($val['children'])) {
-                $folderKey = mb_strtolower($val['folder']);
+                $folder = rtrim(ltrim($val['folder'], "/"), "/");
+                $folderKey = mb_strtolower($folder);
                 $this->folderableMenu[$folderKey] = $val['children'];
                 $newMenuArray = $val['children'];
                 $this->buildMenuAndFolders($newMenuArray);

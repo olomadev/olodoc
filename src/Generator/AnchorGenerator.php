@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Olodoc\Generator;
 
+use DOMXPath;
+use DOMDocument;
 use Olodoc\DocumentManagerInterface;
+use Olodoc\Exception\ConfigurationErrorException;
 
 /**
  * @author Oloma <support@oloma.dev>
@@ -15,6 +18,13 @@ use Olodoc\DocumentManagerInterface;
  */
 class AnchorGenerator implements AnchorGeneratorInterface
 {
+    /**
+     * Head tags
+     * 
+     * @var array
+     */
+    protected $hTags = array();
+
     /**
      * All links on the page
      * 
@@ -47,28 +57,15 @@ class AnchorGenerator implements AnchorGeneratorInterface
     }
 
     /**
-     * Parse <a href=""></a> tags
+     * Parse anchor tags
      *
-     * @param  string $html markdown html content
-     *
-     * @return string html
+     * @param  string $htmlBody markdown content
+     * @return array
      */
-    public function parse(string $html)
+    public function parse(string $htmlBody) : array
     {
         $documentManager = $this->documentManager;
-        
-        // Let's make internal links to http(s) and host supported
-        // 
-        // Example:
-        // 
-        // Search  <a href="/routing-and-pages/index.html"></a>
-        // Replace <a href="//en.example.com/doc/1.0/routing-and-pages/index.html"></a>
-
-        $html = preg_replace_callback("#<a href=\"[^http](.*?)\">#", function ($src) use ($documentManager) {
-            return '<a href="'.$documentManager->getBaseUrl().$documentManager->getVersion().'/'.$src[1].'">';
-        }, $html);
-        $this->data = Self::parseHeadTags($html);
-
+        $this->data = $this->parseHeadTags($htmlBody);
         return $this->data;
     }
 
@@ -79,35 +76,41 @@ class AnchorGenerator implements AnchorGeneratorInterface
      */
     public function generate()
     {
-        if (! is_array($this->data['subItems'])) {
+        if (! is_array($this->hTags)) {
             return;
         }
-        if (count($this->data['subItems']) == 0) {
+        if (count($this->hTags) == 0) {
             return;
         }
         $class = "";
-        foreach ($this->data['subItems'] as $k => $v) {
-            switch ($this->data['subHeaders'][$k]) {
-                case '2':
+        foreach ($this->hTags as $number => $v) {
+            switch ($v['key']) {
+                case 'h2':
                     $class = 'nav-sub-item-h2';
                     break;
-                case '3':
+                case 'h3':
                     $class = 'nav-sub-item-h3';
                     break;
-                case '4':
+                case 'h4':
                     $class = 'nav-sub-item-h4';
                     break;
-                case '5':
+                case 'h5':
                     $class = 'nav-sub-item-h5';
                     break;
-                case '6':
+                case 'h6':
                     $class = 'nav-sub-item-h6';
                     break;
                 default:
                     $class = 'nav-sub-item-h0';
                     break;
             }
-            $this->anchors.= '<li class="nav-sub-item '.$class.'"><a href="#'.Self::formatName($v).'" class="nav-sub-link">'.$v.'</a></li>';
+            if (! empty($v['value'])) {
+                $this->anchors.= '<li class="nav-sub-item '.$class.'">';
+                    $this->anchors.= '<a href="#'.$number.'-'.Self::formatName($v['value']).'" class="nav-sub-link">';
+                    $this->anchors.= $v['value'];
+                    $this->anchors.= '</a>';
+                $this->anchors.= '</li>';
+            }
         }
     }
 
@@ -124,35 +127,46 @@ class AnchorGenerator implements AnchorGeneratorInterface
     /**
      * Parse header tags and build anchors for right menu
      *
-     * @param  string $html parsed markdown content
+     * @param  string $htmlBody parsed markdown content
      * 
      * @return array
      */
-    protected static function parseHeadTags($html) : array
+    protected function parseHeadTags($htmlBody) : array
     {
-        // Find <h> tags
+        $anchorParseQuery = $this->documentManager->getAnchorParseQuery();        
+        $html = "<!DOCTYPE html>
+        <html>
+        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">
+        <body>".$htmlBody."</body>
+        </html>";
+        $doc = new DOMDocument;
+        $doc->loadHTML($html, LIBXML_NOERROR);
+        $xpath = new DOMXPath($doc);  
+        $heads = $xpath->query($anchorParseQuery);
+        foreach ($heads as $tag) {
+           if ($tag->parentNode->tagName == 'body') {
+                $this->hTags[] = [
+                    'key' => $tag->tagName,
+                    'value' => $tag->nodeValue,
+                ];
+           }
+        }
         //
-        $match = preg_match_all('#<h(2|3|4|5|6)>(.*)<\/h.*>#', $html, $matches);
-        $subHeaders = ($match > 0) ? $matches[1] : array();
-        $subItems = ($match > 0) ? $matches[2] : array();
-
         // Build a names for <h> tags
         //
         $patterns = array();
         $replacements = array();
-        foreach ($subItems as $i => $item) {
-            $n = $subHeaders[$i];
-            $search  = '<h'.$n.'>'.$item;
-            $replace = '<a class="anchor" name="'.Self::formatName($item).'"></a><h'.$n.'>'.$item;
-            $html = str_replace($search, $replace, $html);
+        foreach ($this->hTags as $number => $val) {
+            $search  = '<'.$val['key'].'>'.$val['value'];
+            $replace = '<a class="anchor" name="'.$number.'-'.Self::formatName($val['value']).'"></a><'.$val['key'].'>'.$val['value'];
+            $htmlBody = str_replace($search, $replace, $htmlBody);
         }
         return [
-            'html' => $html,
-            'subItems' => $subItems,
-            'subHeaders' => $subHeaders
+            'html' => $htmlBody,
+            'hTags' => $this->hTags,
         ];
     }
-    
+
     /**
     * Normalize function names to display friendly on the right menu.
     *

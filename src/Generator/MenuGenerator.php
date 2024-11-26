@@ -197,7 +197,7 @@ class MenuGenerator implements MenuGeneratorInterface
         $anchorGenerations = $this->documentManager->getAnchorGenerations();
         $anchorsForIndexPages = $this->documentManager->getAnchorsForIndexPages();
         
-        if (count($this->data['subItems']) > 0 && in_array($pageUrl, $pages)) {
+        if (count($this->data['hTags']) > 0 && in_array($pageUrl, $pages)) {
             if ($anchorGenerations) {
                 if (false == $anchorsForIndexPages) {
                   if ($page != $this->documentManager::INDEX_PAGE // do not generate anchors for introduction pages ...
@@ -256,7 +256,7 @@ class MenuGenerator implements MenuGeneratorInterface
      *
      * @return string
      */
-    public function getSideNavbarLinks() : string
+    public function getSideNavbarLinks()
     {
         return $this->sideNavbarLinks;
     }
@@ -348,12 +348,22 @@ class MenuGenerator implements MenuGeneratorInterface
     {
         if (count($this->segments) > 1) {
             $directoryMap = array_map(function($value) {
+                if (strpos($value, "-") > 0) {
+                    $dashMap = array_map(function($v) {
+                        return mb_ucfirst($v);
+                    }, explode("-", $value));
+                    $value = implode(" ", $dashMap);
+                }
                 return mb_ucfirst($value);
             }, $this->segments);
-            $this->directoryLabel = implode(" / ", $directoryMap);
+            $this->directoryLabel = end($directoryMap);
         } else {
             $directoryKey = $this->documentManager->getDirectory();
-            $this->directoryLabel = mb_ucfirst($directoryKey);
+            $parts = explode("-", $directoryKey); // split dashes
+            $directoryMap = array_map(function($value) {
+                return mb_ucfirst($value);
+            }, $parts);
+            $this->directoryLabel = implode(" ", $directoryMap);
         }
     }
 

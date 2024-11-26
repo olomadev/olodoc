@@ -140,6 +140,20 @@ interface DocumentManagerInterface
     public function getRemoveDefaultLocale() : Bool;
 
     /**
+     * Set dom xpath anchor parse query string
+     * 
+     * @param string $anchorParseQuery query string
+     */
+    public function setAnchorParseQuery(string $anchorParseQuery);
+
+    /**
+     * Returns to dom xpath anchor parse query string
+     *
+     * @return string
+     */
+    public function getAnchorParseQuery() : string;
+
+    /**
      * Enable/Disable anchor generations
      * 
      * @param  boolean $bool bool

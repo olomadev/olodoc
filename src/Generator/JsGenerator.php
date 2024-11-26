@@ -150,15 +150,13 @@ class JsGenerator implements JsGeneratorInterface
                         html += \'<h3 class="search-result-title">\' + response.data.title + \'</h3>\';
                         html += \'<div class="search-result-text">\' + response.data.resultText + \'</div>\';
                         response["data"]["results"].forEach(function(item) {
-                          var url = \'/\' + item.path + \'/\' + item.version + item.file;
+                          var url = item.baseUrl + \'/\' + item.version + item.file;
                           html += \'<div class="search-result-item card">\';
                           html += \'<a href="\' + url + \'" class="search-result-item-link">\';
-                            html += \'<div class="card-body">\';
-                              html += \'<blockquote>\';
+                              html += \'<blockquote style="margin-bottom:0;">\';
                               html += item.file;
                               html += \'<footer class="blockquote-footer">\' + item.line + \'</footer>\';
                               html += \'</blockquote>\';
-                            html += \'</div>\';
                           html += \'</a>\';
                           html += \'</div>\';
                         });

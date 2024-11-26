@@ -46,6 +46,7 @@ class DocumentManager implements DocumentManagerInterface
     protected $base64Convert = false;
     protected $availableLocales = array();
     protected $availableVersions = array();
+    protected $anchorParseQuery;
     protected $anchorGenerations = false;
     protected $anchorsForIndexPages = false;
 
@@ -227,6 +228,26 @@ class DocumentManager implements DocumentManagerInterface
     public function getRemoveDefaultLocale() : Bool
     {
         return $this->removeDefaultLocale;
+    }
+
+    /**
+     * Set dom xpath anchor parse query string
+     * 
+     * @param string $anchorParseQuery query string
+     */
+    public function setAnchorParseQuery(string $anchorParseQuery)
+    {
+        $this->anchorParseQuery = $anchorParseQuery;
+    }
+
+    /**
+     * Returns to dom xpath anchor parse query string
+     *
+     * @return string
+     */
+    public function getAnchorParseQuery() : string
+    {
+        return $this->anchorParseQuery;
     }
 
     /**

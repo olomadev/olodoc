@@ -14,8 +14,8 @@ class LaminasDocumentManagerFactory
 
         $documentManager = new DocumentManager;
         $documentManager->setAvailableVersions($config['available_versions']);
-        $documentManager->setDefaultVersion($config['default_version']);
-        $documentManager->setDefaultLocale($config['default_locale']);
+        $documentManager->setDefaultVersion($config['default_version']); // 1.0
+        $documentManager->setDefaultLocale($config['default_locale']);  // en
         $documentManager->setRootPath($config['root_path']);  // /var/www/olodoc-site
         $documentManager->setHttpPrefix($config['http_prefix']); // https(s)://
         $documentManager->setBaseUrl($config['base_url']); // docs
@@ -24,6 +24,7 @@ class LaminasDocumentManagerFactory
         $documentManager->setXmlMapPath($config['xml_path']); // /public/sitemap.xml
         $documentManager->setBase64Convert($config['base64_convert']); // true
         $documentManager->setAnchorGenerations($config['anchor_generations']); // false
+        $documentManager->setAnchorParseQuery($config['anchor_parse_query']); // //h2|//h3|//h4|//h5|//h6
         $documentManager->setAnchorsForIndexPages($config['anchors_for_index_pages']); // false
 
         return $documentManager;

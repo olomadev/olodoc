@@ -42,7 +42,7 @@ interface MenuGeneratorInterface
      *
      * @return string
      */
-    public function getSideNavbarLinks() : string;
+    public function getSideNavbarLinks();
 
     /**
      * Returns to segments
