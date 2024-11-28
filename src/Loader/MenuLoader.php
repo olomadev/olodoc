@@ -83,20 +83,21 @@ class MenuLoader implements MenuLoaderInterface
     {
         $this->directory = $directory;
         $file = $this->documentManager->getMenuFile();
+        $translator = $this->documentManager->getTranslator();
         if (! is_file($file)) {
             throw new FileNotFoundException(
-                "Menu configuration file does't exists in your config folder."
+                "Your navigation.php file does't exists in your config folder."
             );
         }
         $this->menuArray = $this->menuConfig = require $file;
         if (! is_array($this->menuConfig)) {
             throw new ConfigurationErrorException(
-                "Menu configuration items must be array."
+                "Navigation items must be array."
             );
         }
         if (! array_is_list($this->menuConfig)) {
             throw new ConfigurationErrorException(
-                "Menu configuration items must not be an associative array it must be simple array list."
+                "Navigation items must not be an associative array it must be simple array list."
             );
         }
         $this->menuArray = $this->buildMenuAndFolders($this->menuArray);

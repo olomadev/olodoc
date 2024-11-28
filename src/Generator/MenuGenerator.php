@@ -96,13 +96,6 @@ class MenuGenerator implements MenuGeneratorInterface
     protected $anchorGenerator;
 
     /**
-     * Directory label
-     * 
-     * @var string
-     */
-    protected $directoryLabel = "";
-
-    /**
      * Current page label
      * 
      * @var string
@@ -150,8 +143,6 @@ class MenuGenerator implements MenuGeneratorInterface
         $icon = $this->documentManager::FOLDER_ICON;
 
         $this->buildSegments();
-        $this->buildDirectoryLabel();
-
         $routeName = $this->documentManager->getRouteName();
         $pages = [
             '/'.$this->documentManager->getDirectory().'/'.$page,
@@ -232,16 +223,6 @@ class MenuGenerator implements MenuGeneratorInterface
     }
 
     /**
-     * Returns to current directory label
-     * 
-     * @return string
-     */
-    public function getDirectoryLabel() : string
-    {
-        return $this->directoryLabel;
-    }
-
-    /**
      * Returns to curremt page label
      * 
      * @return string
@@ -281,6 +262,7 @@ class MenuGenerator implements MenuGeneratorInterface
     public function getSidebarHeader($indexText = "Index", $backToMenuText = "Back to Menu") : string
     {
         $html = "";
+        $goToBackLabel = $this->buildGoToBackLabel($indexText);
         $directory = $this->documentManager->getDirectory();
         $currentRouteName = $this->documentManager->getRouteName();
         if ($currentRouteName == $this->documentManager::DIRECTORY_ROUTE) {
@@ -288,7 +270,7 @@ class MenuGenerator implements MenuGeneratorInterface
             $html.= "<div class=\"row g-0 no-select\">";
                 $html.= "<div class=\"control\" style=\"width: 100%\" onclick=\"olodocGoToPage('".$link."')\">";
                         $html.= "<div class=\"col col-12\">";
-                            $html.= '<div class="folder-label">'.$this->getDirectoryLabel().'</div>';
+                            $html.= '<div class="folder-label">'.$goToBackLabel.'</div>';
                             $html.= '<div><a href="javascript:void;">«&nbsp;'.$backToMenuText.'</a></div>';
                         $html.= "</div>";
                 $html.= '</div>';
@@ -340,31 +322,56 @@ class MenuGenerator implements MenuGeneratorInterface
     }
 
     /**
-     * Build directory label
+     * Build go to back label
      * 
-     * @return void
+     * @param  string $indexText index name
+     * @return string
      */
-    protected function buildDirectoryLabel()
+    public function buildGoToBackLabel(string $indexText) : string
     {
-        if (count($this->segments) > 1) {
-            $directoryMap = array_map(function($value) {
-                if (strpos($value, "-") > 0) {
-                    $dashMap = array_map(function($v) {
-                        return mb_ucfirst($v);
-                    }, explode("-", $value));
-                    $value = implode(" ", $dashMap);
+        $pageLabel = $this->getPageLabel();
+        $segments = $this->getSegments();
+        $i = 0;
+        $breadCrumbs = array();
+        $breadCrumbs[$i] = $indexText;
+        $currentPage = $this->documentManager->getPage();
+        $currentRouteName = $this->documentManager->getRouteName();
+        switch ($currentRouteName) {
+            case $this->documentManager::INDEX_DEFAULT:
+            case $this->documentManager::INDEX_DEFAULT_INDEX:
+            case $this->documentManager::INDEX_DEFAULT_SLASH:
+            case $this->documentManager::INDEX_DEFAULT_LATEST:
+                $breadCrumbs[$i] = $pageLabel;
+                break;
+            case $this->documentManager::PAGE_ROUTE:
+                $breadCrumbs[$i] = $pageLabel;
+                break;
+            case $this->documentManager::DIRECTORY_ROUTE:         
+                foreach ($segments as $level => $dirname) {
+                    ++$i;
+                    $breadCrumbs[$i] = Self::getDirectoryLabel($dirname);
                 }
-                return mb_ucfirst($value);
-            }, $this->segments);
-            $this->directoryLabel = end($directoryMap);
-        } else {
-            $directoryKey = $this->documentManager->getDirectory();
-            $parts = explode("-", $directoryKey); // split dashes
-            $directoryMap = array_map(function($value) {
-                return mb_ucfirst($value);
-            }, $parts);
-            $this->directoryLabel = implode(" ", $directoryMap);
+                break;
         }
+        $count = count($breadCrumbs);
+        if ($count > 1) {
+            return $breadCrumbs[$count - 2];
+        }
+        return $indexText;
+    }
+
+    /**
+     * Generate folder label
+     * 
+     * @param  string $dirname name
+     * @return string
+     */
+    protected static function getDirectoryLabel($dirname)
+    {
+        $dashMap = array_map(function($v) {
+            return mb_ucfirst($v);
+        }, explode("-", $dirname));
+        return implode(" ", $dashMap);
     }
 
     /**

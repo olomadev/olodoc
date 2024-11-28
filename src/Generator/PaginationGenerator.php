@@ -181,8 +181,9 @@ class PaginationGenerator implements PaginationGeneratorInterface
      */
     private function generateFooter() : string
     {
+        $host = $this->documentManager->getRequest()->getUri()->getHost();
         $this->pageFooter = '<div style="margin-top: var(--ol-body-footer-margin-top);font-size: var(--ol-body-footer-font-size);">
-            <p class="text-end" style="padding-top: var(--ol-body-footer-padding-top);">This document was created with <b><a href="https://olodoc.dev" target="_blank">Olodoc</a></b>.</p>
+            <p class="text-end" style="padding-top: var(--ol-body-footer-padding-top);">This document was created with <b><a href="https://olodoc.oloma.dev?ref='.$host.'" target="_blank">Olodoc</a></b>.</p>
         </div>';
         return $this->pageFooter;
     }

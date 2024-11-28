@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Olodoc;
 
 use Psr\Container\ContainerInterface;
+use Laminas\I18n\Translator\TranslatorInterface;
 
 class LaminasDocumentManagerFactory
 {
@@ -12,10 +13,11 @@ class LaminasDocumentManagerFactory
     {
         $config = $container->get('config')['olodoc'];
 
-        $documentManager = new DocumentManager;
+        $documentManager = new DocumentManager($container->get(TranslatorInterface::class));
         $documentManager->setAvailableVersions($config['available_versions']);
         $documentManager->setDefaultVersion($config['default_version']); // 1.0
         $documentManager->setDefaultLocale($config['default_locale']);  // en
+        $documentManager->setConfigPath($config['config_path']);  // '/config/docs/'
         $documentManager->setRootPath($config['root_path']);  // /var/www/olodoc-site
         $documentManager->setHttpPrefix($config['http_prefix']); // https(s)://
         $documentManager->setBaseUrl($config['base_url']); // docs

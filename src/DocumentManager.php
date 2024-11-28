@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Olodoc;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Laminas\I18n\Translator\TranslatorInterface;
 use Olodoc\Exception\ConfigurationErrorException;
 
 /**
@@ -31,7 +32,7 @@ class DocumentManager implements DocumentManagerInterface
     protected $version = '1.0';
     protected $httpPrefix;
     protected $baseUrl = '/';
-    protected $locale = "en";
+    protected $locale = 'en';
     protected $request;
     protected $routeName;
     protected $routeParams = array();
@@ -39,6 +40,7 @@ class DocumentManager implements DocumentManagerInterface
     protected $htmlPath = '/data/docs/';
     protected $configPath = '/config/docs/';
     protected $xmlMapPath = '/public/';
+    protected $translator;
     protected $documentRoot;
     protected $defaultVersion;
     protected $defaultLocale;
@@ -49,6 +51,26 @@ class DocumentManager implements DocumentManagerInterface
     protected $anchorParseQuery;
     protected $anchorGenerations = false;
     protected $anchorsForIndexPages = false;
+
+    /**
+     * Constructor
+     * 
+     * @param TranslatorInterface $translator laminas translator
+     */
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;    
+    }
+
+    /**
+     * Returns to translator class
+     * 
+     * @return object
+     */
+    public function getTranslator() : TranslatorInterface
+    {
+        return $this->translator;
+    }
 
     /**
      * Set available versions for your documents
@@ -339,7 +361,7 @@ class DocumentManager implements DocumentManagerInterface
                 "Configuration Error: setConfigPath() method must be set at top level."
             );
         }
-        $file = $this->getRootPath().'/'.$this->getConfigPath().'/'.$this->getVersion().'/'.$this->getLocale().'/menu.php';
+        $file = $this->getRootPath().'/'.$this->getConfigPath().'/'.$this->getVersion().'/navigation.php';
         return $file;
     }
 

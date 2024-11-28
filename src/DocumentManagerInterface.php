@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Olodoc;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Laminas\I18n\Translator\TranslatorInterface;
 
 /**
  * @author Oloma <support@oloma.dev>
@@ -13,6 +14,13 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 interface DocumentManagerInterface
 {
+    /**
+     * Returns to translator class
+     * 
+     * @return object
+     */
+    public function getTranslator() : TranslatorInterface;
+
     /**
      * Set available versions for your documents
      * 

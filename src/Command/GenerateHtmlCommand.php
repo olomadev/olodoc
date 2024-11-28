@@ -233,9 +233,11 @@ class GenerateHtmlCommand extends Command
         // Search  <a href="/routing-and-pages/index.html"></a>
         // Replace <a href="//en.example.com/doc/1.0/routing-and-pages/index.html"></a>
 
-        return preg_replace_callback("#<a href=\"[^http|\#](.*?)\">#", function ($src) use ($baseUrl, $version) {
-            return '<a href="'.$baseUrl.'/'.$version.'/'.$src[1].'">';
-        }, $text);
+        // $text = preg_replace_callback("#<a href=\"[^http|\#](.*?)\">#", function ($src) use ($baseUrl, $version) {
+        //     return '<a href="'.$baseUrl.'/'.$version.'/'.$src[1].'">';
+        // }, $text);
+
+        return $text;
     }
 
     /**

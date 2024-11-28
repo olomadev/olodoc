@@ -46,11 +46,7 @@ class FileLoader
             throw new FileNotFoundException(
                 sprintf(
                     "File loader error: Documentation file %s not found.",
-                    str_replace(
-                        $this->documentManager->getRootPath(),
-                        "",
-                        $file
-                    )
+                    $file
                 )
             );
         }

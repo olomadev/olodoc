@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Olodoc\Command;
 
-use Parsedown;
+use ParsedownExtra;
 
-class MarkdownParser extends Parsedown {
+class MarkdownParser extends ParsedownExtra {
 
     protected function blockFencedCode($Line)
     {
