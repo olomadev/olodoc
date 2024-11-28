@@ -22,4 +22,4 @@ Php html documentation builder for markdown (.md) files.
 * Html Meta Tag Generation Support
 * Auto Sitemap.xml Builder for SEO
 
-For documentation visit this address <a href="https://olodoc.dev">https://olodoc.dev</a>.
+For documentation visit this address <a href="https://olodoc.oloma.dev">https://olodoc.oloma.dev</a>.
