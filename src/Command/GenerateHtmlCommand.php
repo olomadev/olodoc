@@ -22,7 +22,7 @@ class GenerateHtmlCommand extends Command
     private $imagesFolder;
     private $currentLocale;
     private $configArray = array();
-    private $availableLanguages = array();
+    private $availableLocales = array();
 
     public function __construct(
         array $config, 
@@ -75,7 +75,7 @@ class GenerateHtmlCommand extends Command
                 "The configuration key 'available_languages' cannot be empty in your 'olodoc' configuration."
             );
         }
-        $this->availableLanguages = $this->config['available_locales'];
+        $this->availableLocales = array_keys($this->config['available_locales']);
         if (empty($this->config['root_path'])) {
             throw new Exception(
                 "The configuration key 'root_path' cannot be empty in your 'olodoc' configuration."
@@ -139,7 +139,7 @@ class GenerateHtmlCommand extends Command
                 $version = $matches[0];
             }
             $this->translator->setLocale($this->config['default_locale']);
-            foreach ($this->availableLanguages as $langId) {
+            foreach ($this->availableLocales as $langId) {
                 if (false !== strpos($file, "/".$langId."/")) {
                     $this->translator->setLocale($langId);
                 }
@@ -233,9 +233,9 @@ class GenerateHtmlCommand extends Command
         // Search  <a href="/routing-and-pages/index.html"></a>
         // Replace <a href="//en.example.com/doc/1.0/routing-and-pages/index.html"></a>
 
-        // $text = preg_replace_callback("#<a href=\"[^http|\#](.*?)\">#", function ($src) use ($baseUrl, $version) {
-        //     return '<a href="'.$baseUrl.'/'.$version.'/'.$src[1].'">';
-        // }, $text);
+        $text = preg_replace_callback("#<a href=\"[^http|\#](.*?)\">#", function ($src) use ($baseUrl, $version) {
+            return '<a href="'.$baseUrl.'/'.$version.'/'.$src[1].'">';
+        }, $text);
 
         return $text;
     }
@@ -497,7 +497,7 @@ class GenerateHtmlCommand extends Command
         $filename = pathinfo($splFileInfo->getFilename(), PATHINFO_FILENAME);
         $folder = null;
         $subFolder = null;
-        foreach ($this->availableLanguages as $langId) {
+        foreach ($this->availableLocales as $langId) {
             $path = strstr($file, "/".$langId."/"); # /en/ui/resources.md
             if (is_string($path)) {
                 $exp = explode("/", ltrim($path, "/"));
