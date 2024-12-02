@@ -263,10 +263,9 @@ class MenuGenerator implements MenuGeneratorInterface
     {
         $html = "";
         $goToBackLabel = $this->buildGoToBackLabel($indexText);
-        $directory = $this->documentManager->getDirectory();
         $currentRouteName = $this->documentManager->getRouteName();
+        $link = $this->getGoToBackLink();
         if ($currentRouteName == $this->documentManager::DIRECTORY_ROUTE) {
-            $link = $this->getGoToBackLink();
             $html.= "<div class=\"row g-0 no-select\">";
                 $html.= "<div class=\"control\" style=\"width: 100%\" onclick=\"olodocGoToPage('".$link."')\">";
                         $html.= "<div class=\"col col-12\">";
@@ -277,7 +276,7 @@ class MenuGenerator implements MenuGeneratorInterface
             $html.= "</div>";
         } else {
             $html.= "<div class=\"row g-0 no-select\">";
-                $html.= "<div class=\"control\" style=\"width: 100%\">";
+                $html.= "<div class=\"control\" style=\"width: 100%\" onclick=\"olodocGoToPage('".$link."')\">";
                         $html.= "<div class=\"col col-12\">";
                             $html.= '<div class="folder-label">'.$indexText.'</div>';
                         $html.= "</div>";
