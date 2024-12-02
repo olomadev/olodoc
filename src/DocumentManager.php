@@ -379,6 +379,7 @@ class DocumentManager implements DocumentManagerInterface
             );
         }
         $basePath = $this->getRootPath().'/'.$this->getHtmlPath().'/'.$this->getVersion().'/'.$this->getLocale();
+        $path = $basePath;
         switch ($routeName) {
             case Self::INDEX_DEFAULT:
             case Self::INDEX_DEFAULT_INDEX:

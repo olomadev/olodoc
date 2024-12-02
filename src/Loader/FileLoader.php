@@ -41,11 +41,19 @@ class FileLoader
      */
     public function loadFile(string $file) : string
     {
+        if (is_dir($file)) {
+            throw new FileNotFoundException(
+                sprintf(
+                    "File loader error: The path \"%s\" is a directory.",
+                    $file
+                )
+            );
+        }
         $content = "";
         if (! file_exists($file)) {
             throw new FileNotFoundException(
                 sprintf(
-                    "File loader error: Documentation file %s not found.",
+                    "File loader error: Documentation file \"%s\" not found.",
                     $file
                 )
             );
