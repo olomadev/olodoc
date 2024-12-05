@@ -5,21 +5,21 @@ Php html documentation builder for markdown (.md) files.
 
 ## Features
 
-* Dead Simple
-* Mark Down (.md) Parser
-* Multi Language Support
-* Code Highlighting with Prism Js
-* Unlimited Folder Support
-* Compatible with Bootstrap 5 Templating
-* Compatible with Boostrap 5 Tabs
-* Built in Document Search
-* Built in Anchor Generator
-* Base64 Encoded Image Rendering
-* Page Navigation Bars
-* Coded with PHP Coding Standarts
-* Config Provider for PHP Mezzio Framework
-* Built with Native Javascripts
-* Html Meta Tag Generation Support
-* Auto Sitemap.xml Builder for SEO
+* Easy to use
+* Extended Markdown syntax
+* Multi-language support
+* Prism Js code highlighting
+* Unlimited menu and folder creation
+* Built-in document search
+* Anchor generator
+* Base64 encoded image processing
+* Page navigation bars
+* Http page caching
+* Html meta tag generator
+* Sitemap.xml generator
+* Coded with native javascript
+* Template customization
+* Compatible with Bootstrap 5
+* It works with the latest PHP Framework Mezzio
 
 For documentation visit this address <a href="https://olodoc.oloma.dev">https://olodoc.oloma.dev</a>.

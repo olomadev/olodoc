@@ -48,6 +48,13 @@ class PageGenerator implements PageGeneratorInterface
     protected $data = array();
 
     /**
+     * Http status code
+     * 
+     * @var integer
+     */
+    protected $statusCode = 200;
+
+    /**
      * Js class
      * 
      * @var object
@@ -170,42 +177,6 @@ class PageGenerator implements PageGeneratorInterface
     }
 
     /**
-     * Sets page meta data
-     *
-     * @return void
-     */
-    protected function setMeta()
-    {
-        $path = $this->documentManager->getRequest()->getUri()->getPath();
-        $defaultMeta = array(
-            'title' => null,
-            'keywords' => null,
-            'description' => null,
-        );
-        $currentPath = str_replace(
-            "/".$this->documentManager->getVersion(),  // remove version number
-            "",
-            $path
-        );
-        //
-        // find current page menu item
-        // 
-        $rowArray = array_filter(
-            $this->menu, 
-            function ($v) use($currentPath) {
-                if (! empty($v['url'])) {
-                    return strpos("/".ltrim($v['url'], "/"), $currentPath) !== false;    
-                }
-                return false;
-            }
-        );
-        if (is_array($rowArray) && ! empty($rowArray)) {
-            $item = current($rowArray);    
-            $this->meta = empty($item['meta']) ? $defaultMeta : $item['meta'];
-        }
-    }
-
-    /**
      * Returns to html version combobox
      * 
      * @param  string $versionText version text
@@ -247,6 +218,42 @@ class PageGenerator implements PageGeneratorInterface
             $prevPageLabel,
             $nextPageLabel
         );
+    }
+
+    /**
+     * Sets page meta data
+     *
+     * @return void
+     */
+    protected function setMeta()
+    {
+        $path = $this->documentManager->getRequest()->getUri()->getPath();
+        $defaultMeta = array(
+            'title' => null,
+            'keywords' => null,
+            'description' => null,
+        );
+        $currentPath = str_replace(
+            "/".$this->documentManager->getVersion(),  // remove version number
+            "",
+            $path
+        );
+        //
+        // find current page menu item
+        // 
+        $rowArray = array_filter(
+            $this->menu, 
+            function ($v) use($currentPath) {
+                if (! empty($v['url'])) {
+                    return strpos("/".ltrim($v['url'], "/"), $currentPath) !== false;    
+                }
+                return false;
+            }
+        );
+        if (is_array($rowArray) && ! empty($rowArray)) {
+            $item = current($rowArray);    
+            $this->meta = empty($item['meta']) ? $defaultMeta : $item['meta'];
+        }
     }
 
 }

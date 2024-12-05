@@ -77,7 +77,7 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
         $item = '<li class="breadcrumb-item" aria-current="page">';
             $item.= '<a href="'.$baseUrl.$version.'/index.html">'.$indexName.'</a>';
         $item.= '</li>';
-        $i = 1;
+        $i = 0;
         $breadCrumbs = array();
         $breadCrumbs[0] = $item;
         $currentPage = $this->documentManager->getPage();
@@ -87,9 +87,6 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
             case $this->documentManager::INDEX_DEFAULT_INDEX:
             case $this->documentManager::INDEX_DEFAULT_SLASH:
             case $this->documentManager::INDEX_DEFAULT_LATEST:
-                $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';
-                break;
-            case $this->documentManager::PAGE_ROUTE:
                 $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';
                 break;
             case $this->documentManager::DIRECTORY_ROUTE:         
@@ -108,6 +105,13 @@ class BreadCrumbGenerator implements BreadCrumbGeneratorInterface
                     $breadCrumbs[$i] = $item;
                 }
                 break;
+        }
+        if (count($breadCrumbs) == 1) {
+            ++$i;
+            $breadCrumbs[$i] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';    
+        }
+        if (! empty($breadCrumbs[$i]) && strip_tags($breadCrumbs[$i]) != $pageLabel) {
+            $breadCrumbs[$i+1] = '<li class="breadcrumb-item active" aria-current="page">'.$pageLabel.'</li>';    
         }
         return $breadCrumbs;
     }

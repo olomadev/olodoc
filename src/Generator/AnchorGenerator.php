@@ -154,11 +154,22 @@ class AnchorGenerator implements AnchorGeneratorInterface
         //
         // Build a names for <h> tags
         //
+        $search = array();
         $patterns = array();
         $replacements = array();
         foreach ($this->hTags as $number => $val) {
-            $search  = '<'.$val['key'].'>'.$val['value'];
             $replace = '<a class="anchor" name="'.$number.'-'.Self::formatName($val['value']).'"></a><'.$val['key'].'>'.$val['value'];
+            /**
+             * Greater than and less than support
+             */
+            if (strpos($val['value'], '>') !== false || strpos($val['value'], '<') !== false) {
+                $search = array(
+                    '<'.$val['key'].'>'.$val['value'],
+                    '<'.$val['key'].'>'.str_replace(['<', '>'], ['&lt;', '&gt;'], $val['value']),
+                );
+            } else {
+                $search = '<'.$val['key'].'>'.$val['value'];
+            }
             $htmlBody = str_replace($search, $replace, $htmlBody);
         }
         return [

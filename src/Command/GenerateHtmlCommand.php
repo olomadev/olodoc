@@ -155,6 +155,10 @@ class GenerateHtmlCommand extends Command
                  * Generate site map xml content and base url
                  */
                 $this->buildSiteMapXml($splFileInfo, $version);
+                 /**
+                 * Convert <table></table> to <div class="table-responsive"></div>
+                 */
+                $html = $this->renderTables($text);
                 /**
                  * Parse md content
                  */
@@ -167,10 +171,6 @@ class GenerateHtmlCommand extends Command
                  * Render code escapes
                  */
                 $html = $this->renderEscapes($html);
-                 /**
-                 * Convert <table></table> to <div class="table-responsive"></div>
-                 */
-                $html = $this->renderTables($html);
                 /**
                  * Convert <blockquote></blockquote> to <div class="alert"></div>
                  */

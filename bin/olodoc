@@ -37,6 +37,7 @@ if (file_exists($c = $rootPath . 'config/container.php')) {
 $config = $container->get('config');
 
 use Symfony\Component\Console\Application;
+use Olodoc\Command\RemoveHtmlCommand;
 use Olodoc\Command\GenerateHtmlCommand;
 use Laminas\I18n\Translator\TranslatorInterface;
 
@@ -44,5 +45,6 @@ $application = new Application();
 //
 // register commands
 // 
+$application->add(new RemoveHtmlCommand($config));
 $application->add(new GenerateHtmlCommand($config, $container->get(TranslatorInterface::class)));
 $application->run();
