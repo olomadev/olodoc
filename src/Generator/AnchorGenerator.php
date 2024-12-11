@@ -105,9 +105,10 @@ class AnchorGenerator implements AnchorGeneratorInterface
                     break;
             }
             if (! empty($v['value'])) {
+                $value = Self::formatName($v['value']);
                 $this->anchors.= '<li class="nav-sub-item '.$class.'">';
-                    $this->anchors.= '<a href="#'.$number.'-'.Self::formatName($v['value']).'" class="nav-sub-link">';
-                    $this->anchors.= $v['value'];
+                    $this->anchors.= '<a href="#'.$number.'-'.$value.'" class="nav-sub-link">';
+                    $this->anchors.= $value;
                     $this->anchors.= '</a>';
                 $this->anchors.= '</li>';
             }
