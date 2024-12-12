@@ -23,7 +23,7 @@ return [
         'root_path' => '/var/www/olodoc-skeleton', // your project root 
         'html_path' => '/data/docs/', // save location for your ".html" document files
         'xml_path' => '/public/sitemap.xml',
-        'sitemap_base_url' => 'example.com/', // sitemap.xml base url
+        'sitemap_base_url' => 'https://example.com/', // sitemap.xml base url
         'build_sitemapxml' => true,
         'base64_convert' => false, // if true all images are converted to base64 encoded strings
         'anchor_generations' => true, // it will enable anchor generations for all routes
