@@ -88,12 +88,12 @@ class GenerateHtmlCommand extends Command
             );
         }
         $this->httpPrefix = $this->config['http_prefix'];
-        if (empty($this->config['base_url'])) {
+        if (empty($this->config['sitemap_base_url'])) {
             throw new Exception(
-                "The configuration key 'base_url' cannot be empty in your 'olodoc' configuration."
+                "The configuration key 'sitemap_base_url' cannot be empty in your 'olodoc' configuration."
             );
         }
-        $this->baseUrl = $this->httpPrefix.ltrim(rtrim($this->config['base_url'], '/'), '/');
+        $this->baseUrl = $this->httpPrefix.ltrim(rtrim($this->config['sitemap_base_url'], '/'), '/');
         if (empty($this->config['html_path'])) {
             throw new Exception(
                 "The configuration key 'html_path' cannot be empty in your 'olodoc' configuration."

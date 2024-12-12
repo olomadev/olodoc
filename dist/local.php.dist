@@ -1,28 +1,33 @@
 <?php
 
 return [
+    //
+    // olodoc
+    // 
     'olodoc' => [
         'default_version' => '1.0',
         'available_versions' => [
             '1.0',
-            '2.0'
         ],
         'default_locale' => 'en',
         'available_locales' => [
-            'en',
-            'tr'
+            'en' => 'English',
+            'de' => 'German',
+            'tr' => 'Türkçe',
         ],
         'http_prefix' => 'http://', // http(s) prefix
-        'base_url' => '{locale}.olodoc-demo.local/', // or "olodoc-site.local/{locale}"
-        'images_folder' => '/public/', // location of your "/images" folder
+        'base_url' => '{locale}.olodoc-skeleton.local/', // or "example.local/{locale}"
         'remove_default_locale' => true, // removes default locale from base url: "en.example.local" => "example.local"
-        'root_path' => '/var/www/olodoc-php-demo', // your project root 
+        'images_folder' => '/public/', // location of your "/images" folder
+        'config_path' => '/config/olodoc/', // your config file path 
+        'root_path' => '/var/www/olodoc-skeleton', // your project root 
         'html_path' => '/data/docs/', // save location for your ".html" document files
         'xml_path' => '/public/sitemap.xml',
+        'sitemap_base_url' => 'example.com/', // sitemap.xml base url
         'build_sitemapxml' => true,
         'base64_convert' => false, // if true all images are converted to base64 encoded strings
-        'primary_head_tag' => 'h2', // h1 or h2
         'anchor_generations' => true, // it will enable anchor generations for all routes
+        'anchor_parse_query' => '//h2|//h3|//h4|//h5|//h6',
         'anchors_for_index_pages' => true, // if false anchors will not be created in index.html routes
-    ],
+    ]
 ];
