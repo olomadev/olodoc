@@ -162,7 +162,7 @@ class GenerateHtmlCommand extends Command
                 /**
                  * Parse md content
                  */
-                $html = $parsedown->text($text);
+                $html = $parsedown->text($html);
                 /**
                  * Render all links
                  */
