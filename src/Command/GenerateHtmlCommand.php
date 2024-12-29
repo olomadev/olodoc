@@ -128,10 +128,9 @@ class GenerateHtmlCommand extends Command
             $this->siteMapXml ='<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL;
             $this->siteMapXml.= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:me="http://www.google.com/schemas/sitemap-me/1.0">'.PHP_EOL;
         }
-        $parsedown = new MarkdownParser;
         $iterator = new RecursiveDirectoryIterator($this->htmlPath);
         foreach (new RecursiveIteratorIterator($iterator) as $splFileInfo) {
-
+            $parsedown = new MarkdownParser;
             $file = $splFileInfo->getPathName();
             preg_match("#(\d+\.)?(\d+\.)?(\*|\d+)#", $file, $matches);
             $version = null;
