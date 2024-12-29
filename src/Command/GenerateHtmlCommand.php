@@ -209,7 +209,6 @@ class GenerateHtmlCommand extends Command
                     );
                 }
                 $pregErrors = array(
-                  PREG_NO_ERROR => "PREG_NO_ERROR",
                   PREG_INTERNAL_ERROR => "PREG_INTERNAL_ERROR",
                   PREG_BACKTRACK_LIMIT_ERROR => "PREG_BACKTRACK_LIMIT_ERROR",
                   PREG_RECURSION_LIMIT_ERROR => "PREG_RECURSION_LIMIT_ERROR",
