@@ -70,6 +70,11 @@ class GenerateHtmlCommand extends Command
 
     protected function validateConfigurations()
     {
+        if (ini_get("pcre.jit") != 0) {
+            throw new Exception(
+                "The cli/php.ini 'pcre.jit' configuration value must be '0'."
+            );
+        }
         if (empty($this->config['available_locales'])) {
             throw new Exception(
                 "The configuration key 'available_languages' cannot be empty in your 'olodoc' configuration."
@@ -202,6 +207,21 @@ class GenerateHtmlCommand extends Command
                         array($this, "renderImgToBase64"),
                         $html
                     );
+                }
+                $pregErrors = array(
+                  PREG_NO_ERROR => "PREG_NO_ERROR",
+                  PREG_INTERNAL_ERROR => "PREG_INTERNAL_ERROR",
+                  PREG_BACKTRACK_LIMIT_ERROR => "PREG_BACKTRACK_LIMIT_ERROR",
+                  PREG_RECURSION_LIMIT_ERROR => "PREG_RECURSION_LIMIT_ERROR",
+                  PREG_BAD_UTF8_ERROR => "PREG_BAD_UTF8_ERROR",
+                  PREG_BAD_UTF8_OFFSET_ERROR => "PREG_BAD_UTF8_OFFSET_ERROR",
+                  PREG_JIT_STACKLIMIT_ERROR => "PREG_JIT_STACKLIMIT_ERROR",
+                );
+                $pregLastError = preg_last_error();
+                if (array_key_exists($pregLastError, $pregErrors)) {
+                  throw new Exception(
+                    "A regular expression error occurred, reason: ".$pregErrors[$pregLastError]
+                  );
                 }
                 $filePath = $parts['dirname'].DIRECTORY_SEPARATOR.$parts['filename'].'.html';
                 file_put_contents($filePath, $html);
