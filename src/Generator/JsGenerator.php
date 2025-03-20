@@ -132,6 +132,7 @@ class JsGenerator implements JsGeneratorInterface
               document.getElementById("search-icon").style.display = "block";
               return;
             }
+            var version = document.getElementById("version-combobox").value;
             document.getElementById("cancel-icon").style.display = "block";
             document.getElementById("search-icon").style.display = "none";
             if (str.length < 3) {
@@ -167,7 +168,7 @@ class JsGenerator implements JsGeneratorInterface
                 } // end if
               } // end ready state
             } // end function
-            xmlhttp.open("GET","/search?v=" + encodeURIComponent("%s") + "&q=" + str, true);
+            xmlhttp.open("GET","/search?v=" + version + "&q=" + str, true);
             xmlhttp.send();
         }'.PHP_EOL;
         return sprintf(

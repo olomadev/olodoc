@@ -15,7 +15,7 @@
         "mezzio",
         "laminas"
     ],
-    "homepage": "https://olodoc.dev",
+    "homepage": "https://olodoc.oloma.dev",
     "autoload": {
         "psr-4": {
             "Olodoc\\": "src/"
@@ -31,5 +31,10 @@
     ],
     "require": {
         "php": ">=7.0.0"
+    },
+    "extra": {
+        "laminas": {
+            "config-provider": "Olodoc\\Mezzio\\ConfigProvider"
+        }
     }
 }
