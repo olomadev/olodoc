@@ -8,6 +8,8 @@ use Olodoc\DocumentManagerInterface;
 use Olodoc\LaminasDocumentManagerFactory;
 use Olodoc\Generator\LaminasPageGeneratorFactory;
 use Olodoc\Generator\PageGeneratorInterface;
+use Olodoc\Middleware\SetVersionMiddleware;
+use Olodoc\Middleware\SetVersionMiddlewareFactory;
 
 /**
  * Configration provider for Mezzio
@@ -37,6 +39,7 @@ class ConfigProvider
             'factories' => [
                 DocumentManagerInterface::class => LaminasDocumentManagerFactory::class,
                 PageGeneratorInterface::class => LaminasPageGeneratorFactory::class,
+                SetVersionMiddleware::class => SetVersionMiddlewareFactory::class,
             ],
         ];
 
